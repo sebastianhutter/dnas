@@ -1,0 +1,23 @@
+[Unit]
+Description=rssdler Service
+After=docker.service
+Requires=docker.service
+
+[Service]
+EnvironmentFile=/etc/sysconfig/donas
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker kill rssdler
+ExecStartPre=-/usr/bin/docker rm rssdler
+ExecStartPre=/usr/bin/docker pull sebastianhutter/rssdler
+ExecStart=/usr/bin/docker run --name rssdler \
+  -v $rssdler_download:/var/lib/rssdler/download \
+  -v $rssdler_working:/var/lib/rssdler/workingdir \
+  -v $rssdler_logs:/var/lib/rssdler/logs \
+  -c /var/lib/rssdler/rssdler.conf
+ExecStop=/usr/bin/docker stop rssdler
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
+
