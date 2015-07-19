@@ -35,3 +35,12 @@
     - name: run the python installer
       command: /usr/bin/python /opt/rssdler042/setup.py install
         chdir=/opt/rssdler042
+
+    - name: move configuration file to working dir
+      command: mv rssdler.conf /var/lib/rssdler/rssdler.conf
+
+    - name: set file permissions
+      file:
+        path=/var/lib/rssdler/rssdler.conf
+        owner=rssdler
+        group=rssdler

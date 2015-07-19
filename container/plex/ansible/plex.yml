@@ -1,0 +1,13 @@
+---
+
+plexdatastore: /data/plex
+plexsetup: https://downloads.plex.tv/plex-media-server/0.9.11.4.739-a4e710f/plexmediaserver-0.9.11.4.739-a4e710f.x86_64.rpm
+plexlibraries:
+  - "{{ plexdatastore }}/public/movies"
+  - "{{ plexdatastore }}/public/tv"
+  - "{{ plexdatastore }}/public/music"
+  - "{{ plexdatastore }}/public/photos"
+  - "{{ plexdatastore }}/public/homevideos"
+  - "{{ plexdatastore }}/public/podcasts"
+
+

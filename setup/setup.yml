@@ -1,0 +1,22 @@
+---
+
+#
+# use ansible to install the dockerized nas services onto a machine
+#
+# please install ansible on the machine to execute this setup script
+# install ansible following the official ansible documentation:
+# http://docs.ansible.com/intro_installation.html
+#
+# run the setup script with the following command line
+# sudo ansible-playbook -c local setup.yml 
+
+- hosts: localhost
+
+  #vars:
+  #  # variables for the rssdler docker container
+  #  rssdler_user: rssdler
+  #  rssdler_download: https://rssdler.googlecode.com/files/rssdler-0.4.2.tar.gz
+  
+  tasks:
+    - name: import setup variables
+      include_vars: setup_vars.yml
