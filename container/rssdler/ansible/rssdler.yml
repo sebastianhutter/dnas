@@ -1,0 +1,37 @@
+---
+
+- hosts: localhost
+
+  vars:
+    rssdler_user: rssdler
+    rssdler_download: https://rssdler.googlecode.com/files/rssdler-0.4.2.tar.gz
+
+  tasks:
+    - name: install pip
+      easy_install: name=pip
+
+    - name: install python feedparser
+      yum:
+        name="python-feedparser"
+        state=latest
+
+    - name: install python mechanize
+      pip:
+        name=mechanize
+        state=latest
+
+    - name: download rssdler python script
+      get_url:
+        url={{rssdler_download}}
+        dest=/tmp/rssdler.tar.gz
+
+    - name: extract rssdler
+      unarchive:
+        src=/tmp/rssdler.tar.gz
+        dest=/opt
+        copy=no
+        creates=rssdler042
+
+    - name: run the python installer
+      command: /usr/bin/python /opt/rssdler042/setup.py install
+        chdir=/opt/rssdler042
