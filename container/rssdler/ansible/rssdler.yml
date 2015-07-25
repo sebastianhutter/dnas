@@ -59,3 +59,14 @@
         owner=root
         group=root
         mode=0755
+
+    # the default rssdler.conf file needs to be copied
+    # in place if there is no config file
+    # else the docker container will die
+    - name: copy the default rssdler.conf to /opt
+      copy:
+        src=rssdler.conf
+        dest=/opt/rssdler.conf
+        owner=rssdler
+        group=rssdler
+        mode=0644

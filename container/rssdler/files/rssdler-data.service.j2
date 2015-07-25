@@ -13,7 +13,7 @@ ExecStart=/usr/bin/docker run --name rssdler-data \
   sebastianhutter/rssdler \
   /bin/true
 ExecStop=/usr/bin/docker stop rssdler-data
-Restart=always
+Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target
