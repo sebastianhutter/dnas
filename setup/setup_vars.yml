@@ -1,7 +1,7 @@
 ---
 
 #
-# this configuration file contains the necessary environment variables for 
+# this configuration file contains the necessary environment variables for
 # the different nas services (plex, sickbeard, rssdler, couchpotate, etc)
 #
 
@@ -9,6 +9,13 @@
 # main variables
 #####
 
+
+
 #####
 # plex service
+#####
+
+
+#####
+# rssdler service
 #####

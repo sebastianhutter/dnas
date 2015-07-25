@@ -4,7 +4,7 @@ After=docker.service
 Requires=docker.service
 
 [Service]
-EnvironmentFile=/etc/sysconfig/donas
+EnvironmentFile=/etc/sysconfig/dnas
 TimeoutStartSec=0
 ExecStartPre=-/usr/bin/docker kill rssdler
 ExecStartPre=-/usr/bin/docker rm rssdler

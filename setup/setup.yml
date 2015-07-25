@@ -8,7 +8,7 @@
 # http://docs.ansible.com/intro_installation.html
 #
 # run the setup script with the following command line
-# sudo ansible-playbook -c local setup.yml 
+# sudo ansible-playbook -c local setup.yml
 
 - hosts: localhost
 
@@ -16,7 +16,28 @@
   #  # variables for the rssdler docker container
   #  rssdler_user: rssdler
   #  rssdler_download: https://rssdler.googlecode.com/files/rssdler-0.4.2.tar.gz
-  
+
   tasks:
     - name: import setup variables
       include_vars: setup_vars.yml
+
+    - name: setup docker repository
+      copy:
+        src=./files/docker.repo
+        dest=/etc/yum.repos.d/docker.repo
+        owner=root
+        group=root
+        mode=644
+        backup=no
+
+    - name: install docker
+      yum:
+        name=docker-engine
+        state=latest
+
+    - name: enable docker
+      service:
+        name=docker
+        state=started
+        enabled=yes
+
