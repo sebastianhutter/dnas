@@ -4,9 +4,12 @@
 # install the init file
 # create necessary directories for docker container
 
+# pathes musst be relative to the setup.yml script this
+# script gets included by
+
 - name: install systemd file
   template:
-    src=../container/systemd/rssdler.service.j2
+    src=../container/rssdler/rssdler.service.j2
     dest=/etc/systemd/system/rssdler.service
     owner=root
     group=root
