@@ -36,5 +36,13 @@
         state=started
         enabled=yes
 
+    - name: copy dnas environment file for systemd
+      template:
+        src=files/dnas.j2
+        dest=/etc/sysconfig/dnas
+        owner=root
+        group=root
+        mode=0644
+
     - name: setup rssdler docker container
       include: ../container/rssdler/setup.yml

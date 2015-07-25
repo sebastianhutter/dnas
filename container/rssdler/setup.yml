@@ -1,6 +1,32 @@
 ---
 
 # install the docker container on the docker host
+# install the init file
+# create necessary directories for docker container
 
-- name: get some debug info
-  debug: var=rssdler_download
+- name: install systemd file
+  template:
+    src=rssdler.service.j2
+    dest=/etc/systemd/system/rssdler.service
+    owner=root
+    group=root
+    mode=0755
+
+- name: create rssdler download mount point
+  file:
+    path={{rssdler_download}}
+    state=directory
+    mode=0755
+
+- name: create rssdler working mount point
+  file:
+    path={{rssdler_working}}
+    state=directory
+    mode=0755
+
+- name: create rssdler logs mount point
+  file:
+    path={{rssdler_logs}}
+    state=directory
+    mode=0755
+
