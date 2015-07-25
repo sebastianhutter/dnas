@@ -8,7 +8,10 @@
 #####
 # main variables
 #####
-base_dir: /data # the base directory which beneath all the docker volumes are mounted
+
+# the base directory for docker images and volumes
+# the default directory is /var/lib/docker
+docker_base: /docker
 
 
 
@@ -20,7 +23,7 @@ base_dir: /data # the base directory which beneath all the docker volumes are mo
 #####
 # rssdler service
 #####
-rssdler_enabled: yes
-rssdler_download: "{{base_dir}}/data/rssdler" # download directory for the rssdler docker machine
-rssdler_working: "{{base_dir}}/run/rssdler"
-rssdler_logs: "{{base_dir}}/logs/rssdler"
+#rssdler_enabled: yes
+#rssdler_download: "{{base_dir}}/data/rssdler" # download directory for the rssdler docker machine
+#rssdler_working: "{{base_dir}}/run/rssdler"
+#rssdler_logs: "{{base_dir}}/logs/rssdler"

@@ -2,9 +2,9 @@ FROM ansible/centos7-ansible:stable
 
 # export the volumes for the rssdler configuration
 # and the download directory
-VOLUME ['/var/lib/rssdler/download']
-VOLUME ['/var/lib/rssdler/workingdir']
-VOLUME ['/var/lib/rssdler/logs']
+#VOLUME ['/var/lib/rssdler/download']
+#VOLUME ['/var/lib/rssdler/workingdir']
+#VOLUME ['/var/lib/rssdler/logs']
 
 # run the ansible playbook to setup the rssdler service
 ADD ansible /tmp/ansible

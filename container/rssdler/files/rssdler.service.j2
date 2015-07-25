@@ -1,0 +1,22 @@
+[Unit]
+Description=rssdler Service
+After=rssdler-data.service
+Requires=rssdler-data.service
+
+[Service]
+EnvironmentFile=/etc/sysconfig/dnas
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker kill rssdler-data
+ExecStartPre=-/usr/bin/docker rm rssdler-data
+ExecStartPre=/usr/bin/docker pull sebastianhutter/rssdler
+ExecStart=/usr/bin/docker run --name rssdler-data \
+  --volume /var/lib/rssdler \
+  sebastianhutter/rssdler \
+  /bin/true
+ExecStop=/usr/bin/docker stop rssdler
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
+

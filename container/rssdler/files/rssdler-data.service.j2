@@ -1,5 +1,5 @@
 [Unit]
-Description=rssdler Service
+Description=rssdler Data Service
 After=docker.service
 Requires=docker.service
 
@@ -10,10 +10,9 @@ ExecStartPre=-/usr/bin/docker kill rssdler
 ExecStartPre=-/usr/bin/docker rm rssdler
 ExecStartPre=/usr/bin/docker pull sebastianhutter/rssdler
 ExecStart=/usr/bin/docker run --name rssdler \
-  -v $rssdler_download:/var/lib/rssdler/download \
-  -v $rssdler_working:/var/lib/rssdler/workingdir \
-  -v $rssdler_logs:/var/lib/rssdler/logs \
-  sebastianhutter/rssdler --config /var/lib/rssdler/workingdir/rssdler.conf -r
+  --volumes-from=rssdler-data
+  sebastianhutter/rssdler \
+  --config /var/lib/rssdler/workingdir/rssdler.conf -r
 ExecStop=/usr/bin/docker stop rssdler
 Restart=always
 

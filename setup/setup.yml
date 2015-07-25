@@ -30,6 +30,14 @@
         name=docker-engine
         state=latest
 
+    - name: copy docker defaults
+      template:
+        src=files/docker.j2
+        dest=/etc/sysconfig/docker
+        owner=root
+        group=root
+        mode=0644
+
     - name: enable docker
       service:
         name=docker

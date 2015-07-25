@@ -52,11 +52,10 @@
       command: /usr/bin/python /opt/rssdler042/setup.py install
         chdir=/opt/rssdler042
 
-    - name: move configuration file to working dir
-      command: mv rssdler.conf /var/lib/rssdler/workingdir/rssdler.conf
-
-    - name: set file permissions
-      file:
-        path=/var/lib/rssdler/workingdir/rssdler.conf
-        owner=rssdler
-        group=rssdler
+    - name: copy the entrypoint script
+      copy:
+        src=docker-entrypoint.sh
+        dest=/opt/docker-entrypoint.sh
+        owner=root
+        group=root
+        mode=0755

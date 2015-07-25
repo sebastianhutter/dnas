@@ -7,29 +7,38 @@
 # pathes musst be relative to the setup.yml script this
 # script gets included by
 
-- name: install systemd file
+- name: install systemd file for rssdler
   template:
-    src=../container/rssdler/rssdler.service.j2
+    src=../container/rssdler/files/rssdler.service.j2
     dest=/etc/systemd/system/rssdler.service
     owner=root
     group=root
     mode=0755
 
-- name: create rssdler download mount point
-  file:
-    path={{rssdler_download}}
-    state=directory
+- name: install systemd file for rssdler data container
+  template:
+    src=../container/rssdler/files/rssdler-data.service.j2
+    dest=/etc/systemd/system/rssdler-data.service
+    owner=root
+    group=root
     mode=0755
 
-- name: create rssdler working mount point
-  file:
-    path={{rssdler_working}}
-    state=directory
-    mode=0755
 
-- name: create rssdler logs mount point
-  file:
-    path={{rssdler_logs}}
-    state=directory
-    mode=0755
+#- name: create rssdler download mount point
+#  file:
+#    path={{rssdler_download}}
+#    state=directory
+#    mode=0755
+
+#- name: create rssdler working mount point
+#  file:
+#    path={{rssdler_working}}
+#    state=directory
+#    mode=0755
+
+#- name: create rssdler logs mount point
+#  file:
+#    path={{rssdler_logs}}
+#    state=directory
+#    mode=0755
 
