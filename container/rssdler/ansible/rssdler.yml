@@ -57,6 +57,6 @@
 
     - name: set file permissions
       file:
-        path=/var/lib/rssdler/rssdler.conf
+        path=/var/lib/rssdler/workingdir/rssdler.conf
         owner=rssdler
         group=rssdler
