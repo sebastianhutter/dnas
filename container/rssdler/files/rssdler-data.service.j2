@@ -7,7 +7,6 @@ Requires=docker.service
 EnvironmentFile=/etc/sysconfig/dnas
 TimeoutStartSec=0
 ExecStartPre=-/usr/bin/docker kill rssdler-data
-ExecStartPre=-/usr/bin/docker rm rssdler-data
 ExecStartPre=/usr/bin/docker pull sebastianhutter/rssdler
 ExecStart=/usr/bin/docker run --name rssdler-data \
   --volume /var/lib/rssdler \

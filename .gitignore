@@ -1,4 +1,4 @@
 # ignore any decrypted ansible user private key
 */ansible.key
 ansible.key
-ansible.sublime-workspace
+dnas.sublime-workspace
