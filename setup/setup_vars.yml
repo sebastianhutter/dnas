@@ -8,6 +8,7 @@
 #####
 # main variables
 #####
+base_dir: /data # the base directory which beneath all the docker volumes are mounted
 
 
 
@@ -19,3 +20,7 @@
 #####
 # rssdler service
 #####
+rssdler_enabled: yes
+rssdler_download: "{{base_dir}}/data/rssdler" # download directory for the rssdler docker machine
+rssdler_working: "{{base_dir}}/run/rssdler"
+rssdler_logs: "{{base_dir}}/logs/rssdler"

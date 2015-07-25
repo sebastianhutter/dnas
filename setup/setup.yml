@@ -12,11 +12,6 @@
 
 - hosts: localhost
 
-  #vars:
-  #  # variables for the rssdler docker container
-  #  rssdler_user: rssdler
-  #  rssdler_download: https://rssdler.googlecode.com/files/rssdler-0.4.2.tar.gz
-
   tasks:
     - name: import setup variables
       include_vars: setup_vars.yml
@@ -40,4 +35,10 @@
         name=docker
         state=started
         enabled=yes
+
+    - name: get some debug info
+      debug: var=rssdler_enabled
+      debug: var=rssdler_download
+      debug: var=rssdler_working
+      debug: var=rssdler_logs
 
