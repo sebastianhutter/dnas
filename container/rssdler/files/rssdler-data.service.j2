@@ -10,9 +10,9 @@ ExecStartPre=-/usr/bin/docker kill rssdler-data
 ExecStartPre=-/usr/bin/docker rm rssdler-data
 ExecStartPre=/usr/bin/docker pull sebastianhutter/rssdler
 ExecStart=/usr/bin/docker run --name rssdler-data \
-  --volumes-from=rssdler-data
+  --volume /var/lib/rssdler \
   sebastianhutter/rssdler \
-  --config /var/lib/rssdler/workingdir/rssdler.conf -r
+  /bin/true
 ExecStop=/usr/bin/docker stop rssdler-data
 Restart=always
 
