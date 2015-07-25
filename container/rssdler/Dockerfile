@@ -15,6 +15,6 @@ RUN rm -rf /tmp/ansible
 # become rssdler user
 USER rssdler
 # run the rssdler script
-ENTRYPOINT ["/usr/bin/rssdler"]
+ENTRYPOINT ["/opt/docker-entrypoint.sh"]
 # if no parameters are given show the help
-CMD ["--help"]
+CMD ["rssdler --help"]
