@@ -13,7 +13,7 @@ ExecStart=/usr/bin/docker run --name rssdler \
   -v $rssdler_download:/var/lib/rssdler/download \
   -v $rssdler_working:/var/lib/rssdler/workingdir \
   -v $rssdler_logs:/var/lib/rssdler/logs \
-  sebastianhutter/rssdler "-c /var/lib/rssdler/rssdler.conf"
+  sebastianhutter/rssdler --config /var/lib/rssdler/workingdir/rssdler.conf -r
 ExecStop=/usr/bin/docker stop rssdler
 Restart=always
 

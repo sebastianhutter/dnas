@@ -1,11 +1,5 @@
 FROM ansible/centos7-ansible:stable
 
-
-# create data directories
-RUN  adduser rssdler && \
-     mkdir -p /var/lib/rssdler/{download,workingdir,logs} && \
-     chown -R rssdler:rssdler /var/lib/rssdler
-
 # export the volumes for the rssdler configuration
 # and the download directory
 VOLUME ['/var/lib/rssdler/download']
@@ -22,6 +16,5 @@ RUN rm -rf /tmp/ansible
 USER rssdler
 # run the rssdler script
 ENTRYPOINT ["/usr/bin/rssdler"]
-
 # if no parameters are given show the help
 CMD ["--help"]

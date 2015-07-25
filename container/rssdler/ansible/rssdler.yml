@@ -3,7 +3,6 @@
 - hosts: localhost
 
   vars:
-    rssdler_user: rssdler
     rssdler_download: https://rssdler.googlecode.com/files/rssdler-0.4.2.tar.gz
 
   tasks:
@@ -32,12 +31,29 @@
         copy=no
         creates=rssdler042
 
+    - name: create rssdler daemon user
+      user:
+        name=rssdler
+        system=yes
+
+    - name: create rssdler directories
+      file:
+        path=/var/lib/rssdler/{{item}}
+        state=directory
+        mode=0755
+        owner=rssdler
+        group=rssdler
+      with_items:
+        - download
+        - workingdir
+        - logs
+
     - name: run the python installer
       command: /usr/bin/python /opt/rssdler042/setup.py install
         chdir=/opt/rssdler042
 
     - name: move configuration file to working dir
-      command: mv rssdler.conf /var/lib/rssdler/rssdler.conf
+      command: mv rssdler.conf /var/lib/rssdler/workingdir/rssdler.conf
 
     - name: set file permissions
       file:
