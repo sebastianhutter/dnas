@@ -1,0 +1,6 @@
+---
+
+# install the docker container on the docker host
+
+- name: get some debug info
+  debug: var=rssdler_download

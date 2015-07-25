@@ -36,9 +36,5 @@
         state=started
         enabled=yes
 
-    - name: get some debug info
-      debug: var=rssdler_enabled
-      debug: var=rssdler_download
-      debug: var=rssdler_working
-      debug: var=rssdler_logs
-
+    - name: setup rssdler docker container
+      include: ../container/rssdler/setup.yml
