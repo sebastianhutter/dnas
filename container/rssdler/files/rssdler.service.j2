@@ -6,13 +6,13 @@ Requires=rssdler-data.service
 [Service]
 EnvironmentFile=/etc/sysconfig/dnas
 TimeoutStartSec=0
-ExecStartPre=-/usr/bin/docker kill rssdler-data
-ExecStartPre=-/usr/bin/docker rm rssdler-data
+ExecStartPre=-/usr/bin/docker kill rssdler
+ExecStartPre=-/usr/bin/docker rm rssdler
 ExecStartPre=/usr/bin/docker pull sebastianhutter/rssdler
-ExecStart=/usr/bin/docker run --name rssdler-data \
-  --volume /var/lib/rssdler \
+ExecStart=/usr/bin/docker run --name rssdler \
+  --volumes-from=rssdler-data
   sebastianhutter/rssdler \
-  /bin/true
+  --config /var/lib/rssdler/workingdir/rssdler.conf -r
 ExecStop=/usr/bin/docker stop rssdler
 Restart=always
 
