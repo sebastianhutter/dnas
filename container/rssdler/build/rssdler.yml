@@ -22,11 +22,11 @@
     - name: download rssdler python script
       get_url:
         url={{rssdler_download}}
-        dest=/tmp/rssdler.tar.gz
+        dest=/tmp/build/rssdler.tar.gz
 
     - name: extract rssdler
       unarchive:
-        src=/tmp/rssdler.tar.gz
+        src=/tmp/build/rssdler.tar.gz
         dest=/opt
         copy=no
         creates=rssdler042
@@ -47,6 +47,14 @@
         - download
         - workingdir
         - logs
+
+    - name: create a empty cookie file
+      file:
+        path=/var/lib/rssdler/workingdir/cookies.txt
+        state=touch
+        mode=0644
+        owner=rssdler
+        group=rssdler
 
     - name: run the python installer
       command: /usr/bin/python /opt/rssdler042/setup.py install
