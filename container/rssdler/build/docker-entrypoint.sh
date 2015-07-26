@@ -1,23 +1,13 @@
 #!/bin/bash
 set -e
 
-echo running entrypoint script
-echo who am im
-id
-
-echo parameters
-echo $@
+cmd=$1
+shift
+param="$@"
 
 # if the first paramter is rssdler start the
 # rssdler script
-if [ "$1" = 'rssdler' ]; then
-    # shift the parametes by one
-    shift
-
-    echo received rssdler as parameters
-    echo remaining parameters
-
-    echo $@
+if [ "$cmd" = 'rssdler' ]; then
 
     # if the configuration file does not exist copy it
     if [ ! -f /var/lib/rssdler/rssdler.conf ]; then
@@ -25,9 +15,13 @@ if [ "$1" = 'rssdler' ]; then
     fi
 
     # first paraemter is always rssdler = /usr/bin/rssdler xxx
-    exec "/usr/bin/rssdler" "$@"
+    exec "/usr/bin/rssdler" $param
 fi
 
 # if the first paramter is not rssdler start
 # whatever parameters where given
-exec "$@"
+if [ -z "$param" ]; then
+    exec "$cmd"
+else
+    exec "$cmd" $param
+fi

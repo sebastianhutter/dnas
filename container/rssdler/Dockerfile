@@ -4,6 +4,7 @@ FROM ansible/centos7-ansible:stable
 ADD build /tmp/build
 WORKDIR /tmp/build
 RUN ansible-playbook rssdler.yml -c local
+WORKDIR /
 RUN rm -rf /tmp/build
 
 # become rssdler user
