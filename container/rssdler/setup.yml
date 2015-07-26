@@ -22,23 +22,3 @@
     owner=root
     group=root
     mode=0755
-
-
-#- name: create rssdler download mount point
-#  file:
-#    path={{rssdler_download}}
-#    state=directory
-#    mode=0755
-
-#- name: create rssdler working mount point
-#  file:
-#    path={{rssdler_working}}
-#    state=directory
-#    mode=0755
-
-#- name: create rssdler logs mount point
-#  file:
-#    path={{rssdler_logs}}
-#    state=directory
-#    mode=0755
-
