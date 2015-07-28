@@ -3,3 +3,5 @@
 #
 
 # the file is loaded by unit files from systemd
+
+etcd_ip=`ip add show dev docker0 | grep inet | sed -e 's/^[ \t]*//' | cut -d" " -f2 | sed -e 's/\///'`

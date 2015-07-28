@@ -14,7 +14,7 @@
 dnas_base: /dnas
 docker_base: "{{dnas_base}}/docker"
 etcd_base: "{{dnas_base}}/etcd"
-etcd_database: "{{etcd_base}}/etcd/dnas.etcd"
+etcd_database: "{{etcd_base}}/dnas.etcd"
 
 # the etcd download link
 etcd_version: etcd-v2.1.1-linux-amd64

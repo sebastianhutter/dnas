@@ -81,8 +81,8 @@
     - name: create etcd base directory
       file:
         path={{etcd_base}}
-        owner=plex
-        group=plex
+        owner=etcd
+        group=etcd
         mode=0755
         state=directory    
 
@@ -91,8 +91,6 @@
         name=docker
         state=started
         enabled=yes
-
-
 
     - name: download etcd for docker self configuration
       get_url: 
