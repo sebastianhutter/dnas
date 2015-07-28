@@ -7,10 +7,11 @@ Requires=docker.service
 EnvironmentFile=/etc/sysconfig/dnas
 ExecStartPre=-/usr/bin/docker kill sickbeard-data
 ExecStartPre=/usr/bin/docker pull sebastianhutter/sickbeard
-ExecStart=/usr/bin/docker run --name sickbeard-data \
+ExecStartPre=-/usr/bin/docker create --name sickbeard-data \
   --volume /opt/sickbeard-data \
   sebastianhutter/sickbeard \
   /bin/true
+ExecStart=/usr/bin/docker start sickbeard-data
 ExecStop=/usr/bin/docker stop sickbeard-data
 Restart=never
 

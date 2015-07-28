@@ -8,9 +8,10 @@ EnvironmentFile=/etc/sysconfig/dnas
 ExecStartPre=-/usr/bin/docker kill nzbtomedia
 ExecStartPre=-/usr/bin/docker rm nzbtomedia
 ExecStartPre=/usr/bin/docker pull sebastianhutter/nzbtomedia
-ExecStart=/usr/bin/docker run --name nzbtomedia \
+ExecStartPre=-/usr/bin/docker create --name nzbtomedia \
   sebastianhutter/nzbtomedia \
   nzbtomedia
+ExecStart=/usr/bin/docker start nzbtomedia
 ExecStop=/usr/bin/docker stop nzbtomedia
 Restart=never
 

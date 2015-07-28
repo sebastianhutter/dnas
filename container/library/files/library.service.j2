@@ -6,11 +6,12 @@ Requires=etcd.service docker.service
 [Service]
 EnvironmentFile=/etc/sysconfig/dnas
 ExecStartPre=-/usr/bin/docker kill library
-ExecStartPre=/usr/bin/docker pull sebastianhutter/library
-ExecStart=/usr/bin/docker run --name library \
+ExecStartPre=-/usr/bin/docker pull sebastianhutter/library
+ExecStartPre=-/usr/bin/docker create --name library \
   --volume /Library \
   sebastianhutter/library \
   library
+ExecStart=/usr/bin/docker start library
 ExecStop=/usr/bin/docker stop library
 Restart=never
 

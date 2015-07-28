@@ -7,10 +7,11 @@ Requires=docker.service
 EnvironmentFile=/etc/sysconfig/dnas
 ExecStartPre=-/usr/bin/docker kill plex-data
 ExecStartPre=/usr/bin/docker pull sebastianhutter/plex
-ExecStart=/usr/bin/docker run --name plex-data \
+ExecStartPre=-/usr/bin/docker create --name plex-data \
   --volume /var/lib/plexmediaserver/Library \
   sebastianhutter/plex \
   /bin/true
+ExecStart=/usr/bin/docker start plex-data
 ExecStop=/usr/bin/docker stop plex-data
 Restart=never
 

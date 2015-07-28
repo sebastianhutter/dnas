@@ -8,10 +8,11 @@ EnvironmentFile=/etc/sysconfig/dnas
 TimeoutStartSec=0
 ExecStartPre=-/usr/bin/docker kill couchpotato-data
 ExecStartPre=/usr/bin/docker pull sebastianhutter/couchpotato
-ExecStart=/usr/bin/docker run --name couchpotato-data \
+ExecStartPre=-/usr/bin/docker create --name couchpotato-data \
   --volume /home/couchpotato/.couchpotato \
   sebastianhutter/couchpotato \
   /bin/true
+ExecStart=/usr/bin/docker start couchpotato-data
 ExecStop=/usr/bin/docker stop couchpotato-data
 Restart=on-failure
 

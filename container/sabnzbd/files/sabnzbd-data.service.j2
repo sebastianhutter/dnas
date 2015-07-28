@@ -7,11 +7,12 @@ Requires=docker.service
 EnvironmentFile=/etc/sysconfig/dnas
 ExecStartPre=-/usr/bin/docker kill sabnzbd-data
 ExecStartPre=/usr/bin/docker pull sebastianhutter/sabnzbd
-ExecStart=/usr/bin/docker run --name sabnzbd-data \
+ExecStartPre=-/usr/bin/docker create --name sabnzbd-data \
   --volume /home/sabnzbd/Downloads \
   --volume /home/sabnzbd/.sabnzbd \
   sebastianhutter/sabnzbd \
   /bin/true
+ExecStart=/usr/bin/docker start sabnzbd-data
 ExecStop=/usr/bin/docker stop sabnzbd-data
 Restart=never
 
