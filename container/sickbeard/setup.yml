@@ -1,0 +1,18 @@
+---
+
+- name: install systemd file for sickbeard
+  template:
+    src=../container/sickbeard/files/sickbeard.service.j2
+    dest=/etc/systemd/system/sickbeard.service
+    owner=root
+    group=root
+    mode=0755
+
+- name: install systemd file for sickbeard data container
+  template:
+    src=../container/sickbeard/files/sickbeard-data.service.j2
+    dest=/etc/systemd/system/sickbeard-data.service
+    owner=root
+    group=root
+    mode=0755
+

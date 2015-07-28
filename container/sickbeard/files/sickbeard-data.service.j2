@@ -1,0 +1,21 @@
+[Unit]
+Description=sickbeard Data Service
+After=docker.service
+Requires=docker.service
+
+[Service]
+EnvironmentFile=/etc/sysconfig/dnas
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker kill sickbeard-data
+ExecStartPre=/usr/bin/docker pull sebastianhutter/sickbeard
+ExecStart=/usr/bin/docker run --name sickbeard-data \
+  --volume /opt/sickbeard-data \
+  sebastianhutter/sickbeard \
+  /bin/true
+ExecStop=/usr/bin/docker stop sickbeard-data
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+
+

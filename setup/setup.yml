@@ -61,3 +61,10 @@
     - name: setup sabnzbd docker container
       include: ../container/sabnzbd/setup.yml
 
+    - name: setup couchpotato docker container
+      include: ../container/couchpotato/setup.yml
+
+    - name: setup sickbeard docker container
+      include: ../container/sickbeard/setup.yml
+
+

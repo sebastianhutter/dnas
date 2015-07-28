@@ -1,0 +1,104 @@
+---
+
+- hosts: localhost
+
+  vars:
+    sickbeardgit: https://github.com/midgetspy/Sick-Beard.git
+    pippackages:
+      - cheetah
+    yumpackages:
+      - git
+
+  tasks:
+
+    - name: install python requirements with pip
+      pip:
+        name={{item}}
+      with_items: "{{pippackages}}"
+
+    - name: install yum packages
+      yum:
+        name={{item}}
+        state=present
+      with_items: "{{yumpackages}}"
+
+    - name: checkout sickbeard
+      git:
+        repo={{sickbeardgit}}
+        dest=/opt/sickbeard
+
+    - name: create sickbeard daemon user
+      user:
+        name=sickbeard
+        system=yes
+
+    # the data folder will be exposed by a data only container
+    # to enable persistent configuration for the sickbeard service
+    # this is necessary so we do not have to expose
+    # the full /opt/sickbeard directory
+    - name: create data directory for persistent sickbeard data
+      file:
+        path=/opt/sickbeard-data
+        state=directory
+        owner=sickbeard
+        group=sickbeard
+        mode=0755
+
+
+
+    - name: create config file in sickbeard_data
+      file:
+        path=/opt/sickbeard-data/config.ini
+        state=touch
+        owner=sickbeard
+        group=sickbeard
+        mode=0644
+
+    - name: create sickbeard db in sickbeard_data
+      file:
+        path=/opt/sickbeard-data/sickbeard.db
+        state=touch
+        owner=sickbeard
+        group=sickbeard
+        mode=0644
+
+    - name: create cache directory in in sickbeard_data
+      file:
+        path=/opt/sickbeard-data/cache
+        state=directory
+        owner=sickbeard
+        group=sickbeard
+        mode=0755
+
+    - name: create logs director in sickbeard_data
+      file:
+        path=/opt/sickbeard-data/Logs
+        state=directory
+        owner=sickbeard
+        group=sickbeard
+        mode=0755
+
+    - name: create softlinks from the sickbeard directory
+      file:
+        src=/opt/sickbeard-data/{{item}}
+        dest=/opt/sickbeard/{{item}}
+        owner=sickbeard
+        group=sickbeard
+        state=link
+      with_items:
+        - config.ini
+        - sickbeard.db
+        - cache
+        - Logs
+
+    - name: set sickbeard ownership of all files
+      command: chown -R sickbeard:sickbeard /opt/sickbeard
+
+    - name: copy the entrypoint script
+      copy:
+        src=docker-entrypoint.sh
+        dest=/opt/docker-entrypoint.sh
+        owner=root
+        group=root
+        mode=0755
+
