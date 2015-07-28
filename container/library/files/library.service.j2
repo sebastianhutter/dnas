@@ -1,0 +1,23 @@
+[Unit]
+Description=library volume Service
+Before=sabnzbd.service
+Before=plex.service
+Before=rssdler.service
+After=etcd.service
+Requires=docker.service
+
+[Service]
+EnvironmentFile=/etc/sysconfig/dnas
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker kill library
+ExecStartPre=/usr/bin/docker pull sebastianhutter/library
+ExecStart=/usr/bin/docker run --name library \
+  sebastianhutter/library \
+  library
+ExecStop=/usr/bin/docker stop library
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
+

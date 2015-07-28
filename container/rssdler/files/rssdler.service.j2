@@ -12,6 +12,7 @@ ExecStartPre=-/usr/bin/docker rm rssdler
 ExecStartPre=/usr/bin/docker pull sebastianhutter/rssdler
 ExecStart=/usr/bin/docker run --name rssdler \
   --volumes-from rssdler-data \
+  --volumes-from library \
   sebastianhutter/rssdler \
   rssdler --config /var/lib/rssdler/rssdler.conf -r
 # we need to remove the file daemon.info or else a restart of the client

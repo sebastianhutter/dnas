@@ -1,0 +1,27 @@
+---
+
+- hosts: localhost
+
+#  vars:
+  tasks:
+    - name: create library daemon user
+      user:
+        name=library
+        system=yes
+
+    - name: create library directory
+      file:
+        path=/Library
+        owner=library
+        group=library
+        mode=0777
+        state=directory
+
+    - name: copy the entrypoint script
+      copy:
+        src=docker-entrypoint.sh
+        dest=/opt/docker-entrypoint.sh
+        owner=root
+        group=root
+        mode=0755
+
