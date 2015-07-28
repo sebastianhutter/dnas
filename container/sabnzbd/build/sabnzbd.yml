@@ -14,6 +14,8 @@
       - python-devel
       - libffi-devel
       - openssl-devel
+      - automake
+      - autoconf
     pippackages:
       - cheetah
       - configobj
@@ -28,6 +30,11 @@
       - unzip
       - git
       - http://pkgs.repoforge.org/unrar/unrar-5.0.3-1.el7.rf.x86_64.rpm
+
+    ffmpeg_source_dir: /tmp/build/ffmpeg
+    ffmpeg_repo: git://source.ffmpeg.org/ffmpeg.git
+    yasm_repo: git://github.com/yasm/yasm.git
+    x264_repo: git://git.videolan.org/x264.git
 
   tasks:
 
@@ -47,6 +54,9 @@
         name={{item}}
         state=present
       with_items: "{{yumpackages}}"
+
+    - name: compile ffmpeg
+      include: ./ffmpeg.yml
 
     - name: remove pip build requirements
       command:  yum autoremove -y {{item}}
