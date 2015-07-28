@@ -1,46 +1,46 @@
 ---
 
 - name: clone ffmpeg source
-  git: repo={{ ffmpeg_repo }} dest={{ source_dir }}
+  git: repo={{ ffmpeg_repo }} dest={{ ffmpeg_source_dir }}
 
 - name: clone yasm source
-  git: repo={{ yasm_repo }} dest={{ source_dir }}/yasm
+  git: repo={{ yasm_repo }} dest={{ ffmpeg_source_dir }}/yasm
 
 - name: clone x264 source
-  git: repo={{ x264_repo }} dest={{ source_dir }}/x264
+  git: repo={{ x264_repo }} dest={{ ffmpeg_source_dir }}/x264
 
 - name: "yasm: execute autogen.sh"
-  command: chdir={{ source_dir }}/yasm ./autogen.sh
+  command: chdir={{ ffmpeg_source_dir }}/yasm ./autogen.sh
 
 - name: "yasm: execute configure"
-  command: chdir={{ source_dir }}/yasm ./configure
+  command: chdir={{ ffmpeg_source_dir }}/yasm ./configure
 
 - name: "yasm: make"
-  command: chdir={{ source_dir }}/yasm make
+  command: chdir={{ ffmpeg_source_dir }}/yasm make
 
 - name: "yasm: make install"
-  command: chdir={{ source_dir }}/yasm make install
+  command: chdir={{ ffmpeg_source_dir }}/yasm make install
 
 - name: "x264: execute configure"
-  command: chdir={{ source_dir }}/x264 ./configure --enable-static --enable-shared
+  command: chdir={{ ffmpeg_source_dir }}/x264 ./configure --enable-static --enable-shared
   environment:
     PATH: usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin
 
 - name: "x264: make"
-  command: chdir={{ source_dir }}/x264 make
+  command: chdir={{ ffmpeg_source_dir }}/x264 make
   environment:
     PATH: usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin
 
 - name: "x264: make install"
-  command: chdir={{ source_dir }}/x264 make install
+  command: chdir={{ ffmpeg_source_dir }}/x264 make install
   environment:
     PATH: usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin
 
 - name: "x264: run ldconfig"
-  command: chdir={{ source_dir }}/x264 ldconfig
+  command: chdir={{ ffmpeg_source_dir }}/x264 ldconfig
 
 - name: "ffmpeg: execute configure"
-  command: chdir={{ source_dir }} ./configure --disable-asm --enable-libx264 --enable-gpl
+  command: chdir={{ ffmpeg_source_dir }} ./configure --disable-asm --enable-libx264 --enable-gpl
 
 - name: "ffmpeg: make install"
-  command: chdir={{ source_dir }} make install
+  command: chdir={{ ffmpeg_source_dir }} make install
