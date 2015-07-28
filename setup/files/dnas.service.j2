@@ -1,0 +1,37 @@
+[Unit]
+Description=dNAS service collection
+Requires=docker.service etcd.service
+
+[Service]
+EnvironmentFile=/etc/sysconfig/dnas
+# start the services in the correct dependencies
+ExecStart=/usr/bin/systemctl start library
+ExecStart=/usr/bin/systemctl start nzbtomedia
+ExecStart=/usr/bin/systemctl start rssdler-data
+ExecStart=/usr/bin/systemctl start rssdler
+ExecStart=/usr/bin/systemctl start sabnzbd-data
+ExecStart=/usr/bin/systemctl start sabnzbd
+ExecStart=/usr/bin/systemctl start plex-data
+ExecStart=/usr/bin/systemctl start plex
+ExecStart=/usr/bin/systemctl start sickbeard-data
+ExecStart=/usr/bin/systemctl start sickbeard
+ExecStart=/usr/bin/systemctl start couchpotato-data
+ExecStart=/usr/bin/systemctl start couchpotato
+
+# stop the services in the correct dependencies
+ExecStop=/usr/bin/docker stop couchpotato
+ExecStop=/usr/bin/docker stop couchpotato-data
+ExecStop=/usr/bin/docker stop sickbeard
+ExecStop=/usr/bin/docker stop sickbeard-data
+ExecStop=/usr/bin/docker stop plex
+ExecStop=/usr/bin/docker stop plex-data
+ExecStop=/usr/bin/docker stop sabnzbd
+ExecStop=/usr/bin/docker stop sabnzbd-data
+ExecStop=/usr/bin/docker stop rssdler
+ExecStop=/usr/bin/docker stop rssdler-data
+ExecStop=/usr/bin/docker stop nzbtomedia
+ExecStop=/usr/bin/docker stop library
+Restart=never
+
+[Install]
+WantedBy=multi-user.target

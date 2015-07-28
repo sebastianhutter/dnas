@@ -124,6 +124,19 @@
         state=started
         enabled=yes
 
+    - name: copy the dnas service start script
+      template:
+        src=files/dnas.service.j2
+        dest=/etc/systemd/system/dnas.service
+        owner=root
+        group=root
+        mode=0755
+      register: systemd
+
+    - name: reload systemd daemon
+      command: systemctl daemon-reload
+      when: systemd.changed
+
     - name: setup rssdler docker container
       include: ../container/rssdler/setup.yml
 

@@ -12,7 +12,7 @@ ExecStart=/usr/bin/docker run --name sabnzbd \
   --volumes-from sabnzbd-data \
   --volumes-from library \
   --volumes-from nzbtomedia \
-  - 8085:8085 \
+  -p 8085:8085 \
   sebastianhutter/sabnzbd \
   sabnzbd
 ExecStop=/usr/bin/docker stop sabnzbd
