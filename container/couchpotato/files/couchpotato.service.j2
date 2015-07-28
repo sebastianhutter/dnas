@@ -1,11 +1,10 @@
 [Unit]
 Description=couchpotato Service
-After=couchpotato-data.service sabnzbd.service etcd.service
+After=couchpotato-data.service
 Requires=docker.service
 
 [Service]
 EnvironmentFile=/etc/sysconfig/dnas
-TimeoutStartSec=5
 ExecStartPre=-/usr/bin/docker kill couchpotato
 ExecStartPre=-/usr/bin/docker rm couchpotato
 ExecStartPre=/usr/bin/docker pull sebastianhutter/couchpotato
@@ -16,7 +15,7 @@ ExecStart=/usr/bin/docker run --name couchpotato \
   sebastianhutter/couchpotato \
   couchpotato
 ExecStop=/usr/bin/docker stop couchpotato
-Restart=always
+Restart=never
 
 [Install]
 WantedBy=multi-user.target

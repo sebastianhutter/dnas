@@ -1,12 +1,10 @@
 [Unit]
 Description=rssdler Data Service
-After=docker.service
-After=etcd.service
+After=library.service
 Requires=docker.service
 
 [Service]
 EnvironmentFile=/etc/sysconfig/dnas
-TimeoutStartSec=0
 ExecStartPre=-/usr/bin/docker kill rssdler-data
 ExecStartPre=/usr/bin/docker pull sebastianhutter/rssdler
 ExecStart=/usr/bin/docker run --name rssdler-data \
@@ -14,7 +12,7 @@ ExecStart=/usr/bin/docker run --name rssdler-data \
   sebastianhutter/rssdler \
   /bin/true
 ExecStop=/usr/bin/docker stop rssdler-data
-Restart=on-failure
+Restart=never
 
 [Install]
 WantedBy=multi-user.target

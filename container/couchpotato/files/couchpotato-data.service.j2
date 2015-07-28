@@ -1,7 +1,6 @@
 [Unit]
 Description=couchpotato Data Service
-After=docker.service
-After=etcd.service
+After=sabnzbd.service
 Requires=docker.service
 
 [Service]

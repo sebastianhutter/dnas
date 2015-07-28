@@ -1,12 +1,10 @@
 [Unit]
 Description=plex Data Service
-After=docker.service
-After=etcd.service
+After=library.service
 Requires=docker.service
 
 [Service]
 EnvironmentFile=/etc/sysconfig/dnas
-TimeoutStartSec=0
 ExecStartPre=-/usr/bin/docker kill plex-data
 ExecStartPre=/usr/bin/docker pull sebastianhutter/plex
 ExecStart=/usr/bin/docker run --name plex-data \
@@ -14,7 +12,7 @@ ExecStart=/usr/bin/docker run --name plex-data \
   sebastianhutter/plex \
   /bin/true
 ExecStop=/usr/bin/docker stop plex-data
-Restart=on-failure
+Restart=never
 
 [Install]
 WantedBy=multi-user.target

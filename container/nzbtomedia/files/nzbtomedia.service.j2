@@ -1,12 +1,10 @@
 [Unit]
 Description=nzbtomedia Service
-Before=sabnzbd.service
-After=etcd.service
-Requires=docker.service
+After=etcd.service docker.service
+Requires=etcd.service docker.service
 
 [Service]
 EnvironmentFile=/etc/sysconfig/dnas
-TimeoutStartSec=0
 ExecStartPre=-/usr/bin/docker kill nzbtomedia
 ExecStartPre=-/usr/bin/docker rm nzbtomedia
 ExecStartPre=/usr/bin/docker pull sebastianhutter/nzbtomedia
@@ -14,7 +12,7 @@ ExecStart=/usr/bin/docker run --name nzbtomedia \
   sebastianhutter/nzbtomedia \
   nzbtomedia
 ExecStop=/usr/bin/docker stop nzbtomedia
-Restart=always
+Restart=never
 
 [Install]
 WantedBy=multi-user.target
