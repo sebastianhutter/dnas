@@ -1,13 +1,16 @@
 {
-  "folders":
-  [
-    {
-      "path": "~/Repository/dnas"
-    }
-  ],
-  "settings":
-  {
-    "tab_size": 2,
-    "translate_tabs_to_spaces": true
-  }
+	"folders":
+	[
+		{
+			"path": "/home/shutter/Repository/dnas"
+		},
+		{
+			"path": "/home/shutter/Repository/ansible/roles"
+		}
+	],
+	"settings":
+	{
+		"tab_size": 2,
+		"translate_tabs_to_spaces": true
+	}
 }

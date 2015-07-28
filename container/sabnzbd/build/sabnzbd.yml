@@ -1,0 +1,84 @@
+---
+
+- hosts: localhost
+
+  vars:
+    sabnzbdgit: https://github.com/sabnzbd/sabnzbd.git
+    pipbuild:
+      - make
+      - gcc
+      - cpp
+      - kernel-headers
+      - glibc-devel
+      - glibc-headers
+      - python-devel
+      - libffi-devel
+      - openssl-devel
+    pippackages:
+      - cheetah
+      - configobj
+      - feedparser
+      - pydbus
+      - pyopenssl
+      - http://www.golug.it/pub/yenc/yenc-0.4.0.tar.gz
+    yumpackages:
+      - par2cmdline
+      - p7zip
+      - p7zip-plugins
+      - unzip
+      - git
+      - http://pkgs.repoforge.org/unrar/unrar-5.0.3-1.el7.rf.x86_64.rpm
+
+  tasks:
+
+    - name: installing pip build requirements
+      yum:
+        name={{item}}
+        state=latest
+      with_items: "{{pipbuild}}"
+
+    - name: install python requirements with pip
+      pip:
+        name={{item}}
+      with_items: "{{pippackages}}"
+
+    - name: install yum packages
+      yum:
+        name={{item}}
+        state=present
+      with_items: "{{yumpackages}}"
+
+    - name: remove pip build requirements
+      command:  yum autoremove -y {{item}}
+      with_items: "{{pipbuild}}"
+      ignore_errors: yes
+
+    - name: checkout sabnzbd
+      git:
+        repo={{sabnzbdgit}}
+        dest=/opt/sabnzbd
+
+    - name: create sabnzbd daemon user
+      user:
+        name=sabnzbd
+        system=yes
+
+    - name: create sabnzbd directories
+      file:
+        path=/home/sabnzbd/{{item}}
+        state=directory
+        mode=0755
+        owner=sabnzbd
+        group=sabnzbd
+      with_items:
+        - .sabnzbd
+        - Downloads
+
+    - name: copy the entrypoint script
+      copy:
+        src=docker-entrypoint.sh
+        dest=/opt/docker-entrypoint.sh
+        owner=root
+        group=root
+        mode=0755
+

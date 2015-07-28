@@ -58,3 +58,6 @@
     - name: setup plex docker container
       include: ../container/plex/setup.yml
 
+    - name: setup sabnzbd docker container
+      include: ../container/sabnzbd/setup.yml
+

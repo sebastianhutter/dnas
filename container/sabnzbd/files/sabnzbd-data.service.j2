@@ -1,0 +1,22 @@
+[Unit]
+Description=sabnzbd Data Service
+After=docker.service
+Requires=docker.service
+
+[Service]
+EnvironmentFile=/etc/sysconfig/dnas
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker kill sabnzbd-data
+ExecStartPre=/usr/bin/docker pull sebastianhutter/sabnzbd
+ExecStart=/usr/bin/docker run --name sabnzbd-data \
+  --volume /home/sabnzbd/Downloads \
+  --volume /home/sabnzbd/.sabnzbd \
+  sebastianhutter/sabnzbd \
+  /bin/true
+ExecStop=/usr/bin/docker stop sabnzbd-data
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+
+
