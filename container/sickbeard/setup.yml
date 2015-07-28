@@ -16,3 +16,10 @@
     group=root
     mode=0755
 
+- name: enable sickbeard services
+  service:
+    name={{item}}
+    enabled=yes
+  with_items:
+    - sickbeard
+    - sickbeard-data

@@ -22,3 +22,11 @@
     owner=root
     group=root
     mode=0755
+
+- name: enable rssdler services
+  service:
+    name={{item}}
+    enabled=yes
+  with_items:
+    - rssdler
+    - rssdler-data

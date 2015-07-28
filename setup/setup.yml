@@ -84,7 +84,7 @@
         owner=etcd
         group=etcd
         mode=0755
-        state=directory    
+        state=directory
 
     - name: enable docker
       service:
@@ -93,20 +93,20 @@
         enabled=yes
 
     - name: download etcd for docker self configuration
-      get_url: 
+      get_url:
         url={{etcd_download}}
         dest=/tmp/etcd.tar.gz
 
     - name: extract etcd
-      unarchive: 
+      unarchive:
         src=/tmp/etcd.tar.gz dest=/opt
 
     - name: create softlink for etcd
-      file: 
-        src=/opt/{{etcd_version}} 
+      file:
+        src=/opt/{{etcd_version}}
         dest=/opt/etcd
-        owner=etcd 
-        group=etcd 
+        owner=etcd
+        group=etcd
         state=link
         force=yes
 
@@ -141,4 +141,7 @@
 
     - name: setup nzbtomedia docker container
       include: ../container/nzbtomedia/setup.yml
+
+    - name: setup library docker container
+      include: ../container/library/setup.yml
 

@@ -7,3 +7,10 @@
     owner=root
     group=root
     mode=0755
+
+- name: enable library services
+  service:
+    name={{item}}
+    enabled=yes
+  with_items:
+    - library

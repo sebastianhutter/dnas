@@ -16,3 +16,11 @@
     group=root
     mode=0755
 
+- name: enable couchpotato services
+  service:
+    name={{item}}
+    enabled=yes
+  with_items:
+    - couchpotato
+    - couchpotato-data
+
