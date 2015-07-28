@@ -1,0 +1,25 @@
+[Unit]
+Description=couchpotato Service
+After=couchpotato-data.service
+After=sabnzbd.service
+Requires=docker.service
+
+[Service]
+EnvironmentFile=/etc/sysconfig/dnas
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker kill couchpotato
+ExecStartPre=-/usr/bin/docker rm couchpotato
+ExecStartPre=/usr/bin/docker pull sebastianhutter/couchpotato
+ExecStart=/usr/bin/docker run --name couchpotato \
+  --volumes-from couchpotato-data \
+  --link sabnzbd \
+  - 5050:5050 \
+  sebastianhutter/couchpotato \
+  couchpotato
+ExecStop=/usr/bin/docker stop couchpotato
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
+

@@ -1,0 +1,44 @@
+---
+
+- hosts: localhost
+
+  vars:
+    couchpotatogit: https://github.com/RuudBurger/CouchPotatoServer.git
+    yumpackages:
+      - git
+
+  tasks:
+    - name: install yum packages
+      yum:
+        name={{item}}
+        state=present
+      with_items: "{{yumpackages}}"
+
+    - name: checkout couchpotato
+      git:
+        repo={{couchpotatogit}}
+        dest=/opt/couchpotato
+
+    - name: create couchpotato daemon user
+      user:
+        name=couchpotato
+        system=yes
+
+    - name: create couchpotato directories
+      file:
+        path=/home/couchpotato/{{item}}
+        state=directory
+        mode=0755
+        owner=couchpotato
+        group=couchpotato
+      with_items:
+        - .couchpotato
+
+    - name: copy the entrypoint script
+      copy:
+        src=docker-entrypoint.sh
+        dest=/opt/docker-entrypoint.sh
+        owner=root
+        group=root
+        mode=0755
+

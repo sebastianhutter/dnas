@@ -1,0 +1,21 @@
+[Unit]
+Description=couchpotato Data Service
+After=docker.service
+Requires=docker.service
+
+[Service]
+EnvironmentFile=/etc/sysconfig/dnas
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker kill couchpotato-data
+ExecStartPre=/usr/bin/docker pull sebastianhutter/couchpotato
+ExecStart=/usr/bin/docker run --name couchpotato-data \
+  --volume /home/couchpotato/.couchpotato \
+  sebastianhutter/couchpotato \
+  /bin/true
+ExecStop=/usr/bin/docker stop couchpotato-data
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+
+
