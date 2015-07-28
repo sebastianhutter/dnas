@@ -12,6 +12,7 @@ ExecStartPre=-/usr/bin/docker rm sabnzbd
 ExecStartPre=/usr/bin/docker pull sebastianhutter/sabnzbd
 ExecStart=/usr/bin/docker run --name sabnzbd \
   --volumes-from sabnzbd-data \
+  --volumes-from nzbtomedia \
   - 8085:8085 \
   sebastianhutter/sabnzbd \
   sabnzbd
