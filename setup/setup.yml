@@ -54,3 +54,7 @@
 
     - name: setup rssdler docker container
       include: ../container/rssdler/setup.yml
+
+    - name: setup plex docker container
+      include: ../container/plex/setup.yml
+

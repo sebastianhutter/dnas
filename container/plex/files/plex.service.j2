@@ -1,0 +1,20 @@
+[Unit]
+Description=plex Service
+After=plex-data.service
+Requires=docker.service
+
+[Service]
+EnvironmentFile=/etc/sysconfig/dnas
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker kill plex
+ExecStartPre=-/usr/bin/docker rm plex
+ExecStartPre=/usr/bin/docker pull sebastianhutter/plex
+ExecStart=/usr/bin/docker run --name plex \
+  --volumes-from plex-data \
+  sebastianhutter/plex \
+  plex
+ExecStop=/usr/bin/docker stop plex
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

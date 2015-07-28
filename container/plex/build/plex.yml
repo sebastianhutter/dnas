@@ -1,0 +1,30 @@
+---
+
+- hosts: localhost
+
+  vars:
+    plexsetup: https://downloads.plex.tv/plex-media-server/0.9.12.4.1192-9a47d21/plexmediaserver-0.9.12.4.1192-9a47d21.x86_64.rpm
+    plexlibrary: /var/lib/plexmediaserver/Library
+
+  tasks:
+
+    - name: installing plex media server
+      yum:
+        state=present
+        name={{plexsetup}}
+
+    - name: create library directory for plex run time data
+      file:
+        path={{plexlibrary}}
+        state=directory
+        mode=0755
+        owner=plex
+        group=plex
+
+    - name: copy the entrypoint script
+      copy:
+        src=docker-entrypoint.sh
+        dest=/opt/docker-entrypoint.sh
+        owner=root
+        group=root
+        mode=0755

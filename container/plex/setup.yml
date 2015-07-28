@@ -1,0 +1,17 @@
+---
+
+- name: install systemd file for plex
+  template:
+    src=../container/plex/files/plex.service.j2
+    dest=/etc/systemd/system/plex.service
+    owner=root
+    group=root
+    mode=0755
+
+- name: install systemd file for plex data container
+  template:
+    src=../container/plex/files/plex-data.service.j2
+    dest=/etc/systemd/system/plex-data.service
+    owner=root
+    group=root
+    mode=0755
