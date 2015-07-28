@@ -11,10 +11,13 @@
 
 # the base directory for docker images and volumes
 # the default directory is /var/lib/docker
-docker_base: /docker
+dnas_base: /dnas
+docker_base: "{{dnas_base}}/docker"
+etcd_base: "{{dnas_base}}/etcd"
+etcd_database: "{{etcd_base}}/etcd/dnas.etcd"
 
 # the etcd download link
-etcd_version: etcdtcd-v2.1.1-linux-amd64
+etcd_version: etcd-v2.1.1-linux-amd64
 etcd_download: "https://github.com/coreos/etcd/releases/download/v2.1.1/{{etcd_version}}.tar.gz"
 
 #####

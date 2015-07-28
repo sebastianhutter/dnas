@@ -2,6 +2,7 @@
 Description=couchpotato Service
 After=couchpotato-data.service
 After=sabnzbd.service
+After=etcd.service
 Requires=docker.service
 
 [Service]

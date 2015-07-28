@@ -38,11 +38,21 @@
         group=root
         mode=0644
 
-    - name: enable docker
-      service:
-        name=docker
-        state=started
-        enabled=yes
+    - name: copy dnas environment file for systemd
+      template:
+        src=files/dnas.j2
+        dest=/etc/sysconfig/dnas
+        owner=root
+        group=root
+        mode=0644
+
+    - name: copy etcd environment file for systemd
+      template:
+        src=files/etcd.j2
+        dest=/etc/sysconfig/etcd
+        owner=root
+        group=root
+        mode=0644
 
     - name: create etcd user account
       user:
@@ -51,6 +61,38 @@
         system=yes
         shell=/bin/nologin
         state=present
+
+    - name: create dnas base directory
+      file:
+        path={{dnas_base}}
+        owner=root
+        group=root
+        mode=0755
+        state=directory
+
+    - name: create docker base directory
+      file:
+        path={{docker_base}}
+        owner=root
+        group=root
+        mode=0700
+        state=directory
+
+    - name: create etcd base directory
+      file:
+        path={{etcd_base}}
+        owner=plex
+        group=plex
+        mode=0755
+        state=directory    
+
+    - name: enable docker
+      service:
+        name=docker
+        state=started
+        enabled=yes
+
+
 
     - name: download etcd for docker self configuration
       get_url: 
@@ -64,7 +106,7 @@
     - name: create softlink for etcd
       file: 
         src=/opt/{{etcd_version}} 
-        dest=/opt/etcd 
+        dest=/opt/etcd
         owner=etcd 
         group=etcd 
         state=link
@@ -73,24 +115,16 @@
     - name: copy service file
       template:
         src=files/etcd.service.j2
-        dest=/etc/systemd/system
+        dest=/etc/systemd/system/etcd.service
         owner=root
         group=root
-        mode=0644
+        mode=0755
 
     - name: enable and start etcd
       service:
         name=etcd
         state=started
         enabled=yes
-
-    - name: copy dnas environment file for systemd
-      template:
-        src=files/dnas.j2
-        dest=/etc/sysconfig/dnas
-        owner=root
-        group=root
-        mode=0644
 
     - name: setup rssdler docker container
       include: ../container/rssdler/setup.yml

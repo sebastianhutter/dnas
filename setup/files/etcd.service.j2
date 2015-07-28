@@ -1,13 +1,15 @@
 [Unit]
 Description=etcd Service
-
+Requires=docker.service
 
 [Service]
-TimeoutStartSec=0
+EnvironmentFile=/etc/sysconfig/etcd
+TimeoutStartSec=10
+WorkingDirectory=/opt/etcd
 ExecStart=/opt/etcd/etcd
 User=etcd
 Group=etcd
-Restart=always
+Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target

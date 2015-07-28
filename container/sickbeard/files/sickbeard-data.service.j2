@@ -1,6 +1,7 @@
 [Unit]
 Description=sickbeard Data Service
 After=docker.service
+After=etcd.service
 Requires=docker.service
 
 [Service]

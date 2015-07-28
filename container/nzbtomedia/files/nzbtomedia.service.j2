@@ -1,6 +1,7 @@
 [Unit]
 Description=nzbtomedia Service
 After=sabnzbd.service
+After=etcd.service
 Requires=docker.service
 
 [Service]

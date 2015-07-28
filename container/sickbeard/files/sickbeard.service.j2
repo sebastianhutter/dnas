@@ -2,6 +2,7 @@
 Description=sickbeard Service
 After=sickbeard-data.service
 After=sabnzbd.service
+After=etcd.service
 Requires=docker.service
 
 [Service]

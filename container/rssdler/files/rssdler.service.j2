@@ -1,6 +1,7 @@
 [Unit]
 Description=rssdler Service
 After=rssdler-data.service
+After=etcd.service
 Requires=docker.service
 
 [Service]

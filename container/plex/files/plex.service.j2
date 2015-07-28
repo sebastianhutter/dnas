@@ -1,6 +1,7 @@
 [Unit]
 Description=plex Service
 After=plex-data.service
+After=etcd.service
 Requires=docker.service
 
 [Service]

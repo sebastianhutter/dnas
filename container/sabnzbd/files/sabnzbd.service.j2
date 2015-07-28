@@ -1,6 +1,7 @@
 [Unit]
 Description=sabnzbd Service
 After=sabnzbd-data.service
+After=etcd.service
 Requires=docker.service
 
 [Service]
