@@ -10,7 +10,5 @@
 
 - name: enable nzbtomedia services
   service:
-    name={{item}}
+    name=nzbtomedia
     enabled=yes
-  with_items:
-    - nzbtomedia
