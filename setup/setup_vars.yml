@@ -14,9 +14,8 @@
 docker_base: /docker
 
 # the etcd download link
-etcd_download: 
-  name: etcd-v2.1.1-linux-amd64
-  link: "https://github.com/coreos/etcd/releases/download/v2.1.1/{{etcd_download.value.name}}.tar.gz"
+etcd_version: etcdtcd-v2.1.1-linux-amd64
+etcd_download: "https://github.com/coreos/etcd/releases/download/v2.1.1/{{etcd_version}}.tar.gz"
 
 #####
 # plex service
