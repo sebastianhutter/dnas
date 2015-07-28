@@ -4,10 +4,10 @@
   git: repo={{ ffmpeg_repo }} dest={{ ffmpeg_source_dir }} accept_hostkey=yes
 
 - name: clone yasm source
-  git: repo={{ yasm_repo }} dest={{ ffmpeg_source_dir }}/yasm
+  git: repo={{ yasm_repo }} dest={{ ffmpeg_source_dir }}/yasm accept_hostkey=yes
 
 - name: clone x264 source
-  git: repo={{ x264_repo }} dest={{ ffmpeg_source_dir }}/x264
+  git: repo={{ x264_repo }} dest={{ ffmpeg_source_dir }}/x264 accept_hostkey=yes
 
 - name: "yasm: execute autogen.sh"
   command: chdir={{ ffmpeg_source_dir }}/yasm ./autogen.sh
