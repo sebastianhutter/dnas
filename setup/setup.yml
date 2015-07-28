@@ -139,4 +139,6 @@
     - name: setup sickbeard docker container
       include: ../container/sickbeard/setup.yml
 
+    - name: setup nzbtomedia docker container
+      include: ../container/nzbtomedia/setup.yml
 
