@@ -1,7 +1,7 @@
 ---
 
 - name: clone ffmpeg source
-  git: repo={{ ffmpeg_repo }} dest={{ ffmpeg_source_dir }}
+  git: repo={{ ffmpeg_repo }} dest={{ ffmpeg_source_dir }} accept_hostkey=yes
 
 - name: clone yasm source
   git: repo={{ yasm_repo }} dest={{ ffmpeg_source_dir }}/yasm
