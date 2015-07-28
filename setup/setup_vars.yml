@@ -13,7 +13,8 @@
 # the default directory is /var/lib/docker
 docker_base: /docker
 
-
+# the etcd download link
+etcd_download: https://github.com/coreos/etcd/releases/download/v2.1.1/etcd-v2.1.1-linux-amd64.tar.gz 
 
 #####
 # plex service

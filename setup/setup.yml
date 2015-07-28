@@ -44,6 +44,15 @@
         state=started
         enabled=yes
 
+    - name: download etcd for docker self configuration
+      get_url: 
+        url={{etcd_download}}
+        dest=/tmp/etcd.tar.gz
+
+    - name: extract etcd
+      unarchive: 
+        src=/tmp/etcd.tar.gz dest=/opt/etcd
+
     - name: copy dnas environment file for systemd
       template:
         src=files/dnas.j2
