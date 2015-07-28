@@ -1,0 +1,34 @@
+---
+
+- hosts: localhost
+
+  vars:
+    nzbtomediagit: https://github.com/clinton-hall/nzbToMedia.git
+    yumpackages:
+      - git
+
+  tasks:
+    - name: install yum packages
+      yum:
+        name={{item}}
+        state=present
+      with_items: "{{yumpackages}}"
+
+    - name: checkout nzbtomedia
+      git:
+        repo={{nzbtomediagit}}
+        dest=/opt/nzbtomedia
+
+    - name: create nzbtomedia daemon user
+      user:
+        name=nzbtomedia
+        system=yes
+
+    - name: copy the entrypoint script
+      copy:
+        src=docker-entrypoint.sh
+        dest=/opt/docker-entrypoint.sh
+        owner=root
+        group=root
+        mode=0755
+

@@ -1,0 +1,9 @@
+---
+
+- name: install systemd file for nzbtomedia
+  template:
+    src=../container/nzbtomedia/files/nzbtomedia.service.j2
+    dest=/etc/systemd/system/nzbtomedia.service
+    owner=root
+    group=root
+    mode=0755
