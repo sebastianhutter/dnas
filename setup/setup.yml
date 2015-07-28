@@ -44,6 +44,14 @@
         state=started
         enabled=yes
 
+    - name: create etcd user account
+      user:
+        name=etcd
+        createhome=no
+        system=yes
+        shell=/bin/nologin
+        state=present
+
     - name: download etcd for docker self configuration
       get_url: 
         url={{etcd_download}}
@@ -51,7 +59,31 @@
 
     - name: extract etcd
       unarchive: 
-        src=/tmp/etcd.tar.gz dest=/opt/etcd
+        src=/tmp/etcd.tar.gz dest=/opt
+
+    - name: create softlink for etcd
+      file:
+        file: 
+          src=/opt/{{etcd_version}} 
+          dest=/opt/etcd 
+          owner=etcd 
+          group=etcd 
+          state=link
+          force=yes
+
+    - name: copy service file
+      template:
+        src=files/etcd.service.j2
+        dest=/etc/systemd/system
+        owner=root
+        group=root
+        mode=0644
+
+    - name: enable and start etcd
+      service:
+        name=etcd
+        state=started
+        enabled=yes
 
     - name: copy dnas environment file for systemd
       template:

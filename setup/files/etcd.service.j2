@@ -1,0 +1,15 @@
+[Unit]
+Description=etcd Service
+
+
+[Service]
+TimeoutStartSec=0
+ExecStart=/opt/etcd/etcd
+User=etcd
+Group=etcd
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
+
