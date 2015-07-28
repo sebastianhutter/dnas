@@ -62,14 +62,13 @@
         src=/tmp/etcd.tar.gz dest=/opt
 
     - name: create softlink for etcd
-      file:
-        file: 
-          src=/opt/{{etcd_version}} 
-          dest=/opt/etcd 
-          owner=etcd 
-          group=etcd 
-          state=link
-          force=yes
+      file: 
+        src=/opt/{{etcd_version}} 
+        dest=/opt/etcd 
+        owner=etcd 
+        group=etcd 
+        state=link
+        force=yes
 
     - name: copy service file
       template:
