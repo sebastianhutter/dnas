@@ -6,4 +6,4 @@
 
 etcd_ip=`ip add show dev docker0 | grep inet | sed -e 's/^[ \t]*//' | cut -d" " -f2 | sed -e 's/\///'`
 
-rssdler_daemon=`/usr/bin/docker inspect -f '{{index .Volumes "/var/lib/rssdler" }}' rssdler`/workingdir/daemon.info
+rssdler_daemon=`/usr/bin/docker inspect -f '\{\{index .Volumes "/var/lib/rssdler" \}\}' rssdler`/workingdir/daemon.info
