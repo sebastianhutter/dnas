@@ -42,14 +42,13 @@
       replace:
         dest=/etc/hosts
         backup=yes
-        ExecStart=/usr/bin/docker -d -H fd://
         regexp='^ExecStart=(.*)$'
         replace='\1 -g {{docker_base}}'
 
-    - name: copy dnas environment file for systemd
+    - name: copy dnas script
       template:
-        src=files/dnas.j2
-        dest=/etc/sysconfig/dnas
+        src=files/dnas.sh.j2
+        dest=/usr/bin/dnas.sh
         owner=root
         group=root
         mode=0644
