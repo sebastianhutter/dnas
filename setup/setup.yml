@@ -38,12 +38,13 @@
         group=root
         mode=0644
 
-    - name: replace start options in systemd docker file because the environment file doesnt work
-      replace:
-        dest=/etc/hosts
-        backup=yes
-        regexp='^ExecStart=(.*)$'
-        replace='\1 -g {{docker_base}}'
+    - name: copy docker service file due to docker defaults not workingf
+      template:
+        src=files/docker.service.j2
+        dest=/usr/lib/systemd/system/docker.service
+        owner=root
+        group=root
+        mode=0644
 
     - name: copy dnas environment file for systemd
       template:
