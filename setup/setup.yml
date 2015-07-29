@@ -45,10 +45,10 @@
         regexp='^ExecStart=(.*)$'
         replace='\1 -g {{docker_base}}'
 
-    - name: copy dnas script
+    - name: copy dnas environment file for systemd
       template:
-        src=files/dnas.sh.j2
-        dest=/usr/bin/dnas.sh
+        src=files/dnas.j2
+        dest=/etc/sysconfig/dnas
         owner=root
         group=root
         mode=0644
@@ -133,8 +133,8 @@
 
     - name: copy the dnas service start script
       template:
-        src=files/dnas.service.j2
-        dest=/etc/systemd/system/dnas.service
+        src=files/dnas.sh.j2
+        dest=/dnas/dnas.sh
         owner=root
         group=root
         mode=0755
