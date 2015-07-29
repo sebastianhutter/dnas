@@ -38,6 +38,14 @@
         group=root
         mode=0644
 
+    - name: replace start options in systemd docker file because the environment file doesnt work
+      replace:
+        dest=/etc/hosts
+        backup=yes
+        ExecStart=/usr/bin/docker -d -H fd://
+        regexp='^ExecStart=(.*)$'
+        replace='\1 -g {{docker_base}}'
+
     - name: copy dnas environment file for systemd
       template:
         src=files/dnas.j2
