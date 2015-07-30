@@ -16,6 +16,10 @@
     - name: import setup variables
       include_vars: setup_vars.yml
 
+#
+# install and configure docker
+#
+
     - name: setup docker repository
       copy:
         src=./files/docker.repo
@@ -45,6 +49,10 @@
         owner=root
         group=root
         mode=0644
+
+#
+# setup dnas defaults
+#
 
     - name: copy dnas environment file for systemd
       template:
@@ -100,6 +108,11 @@
         state=started
         enabled=yes
 
+
+#
+# could be done via etcd rpm!
+#
+
     - name: download etcd for docker self configuration
       get_url:
         url={{etcd_download}}
@@ -112,7 +125,7 @@
     - name: create softlink for etcd
       file:
         src=/opt/{{etcd_version}}
-        dest=/opt/etcd
+        dest={{etcd_install}}
         owner=etcd
         group=etcd
         state=link
@@ -126,11 +139,24 @@
         group=root
         mode=0755
 
+    - name: copy etcd profile script
+      template:
+        src=files/etcd.profile.j2
+        dest=/etc/profile.d/etcd.sh
+        owner=root
+        group=root
+        mode=0644
+
     - name: enable and start etcd
       service:
         name=etcd
         state=started
         enabled=yes
+
+#
+# could be done via etcd rpm!
+#
+
 
     - name: copy the dnas service start script
       template:
@@ -144,6 +170,45 @@
     - name: reload systemd daemon
       command: systemctl daemon-reload
       when: systemd.changed
+
+#
+# compile jsson - a json parser cli
+#
+
+    - name: install jansson devel libraries
+      yum:
+        name={{item}}
+        state=latest
+      with_items:
+        - jansson-devel
+        - gcc
+
+    - name: clone jshon to parse jsson output in bash
+      git:
+        repo={{jshon_download}}
+        dest=/tmp/jshon
+
+    - name: compile and install jshon
+      command: make && make install chdir=/tmp/jshon
+
+    - name: remove jshon build dependencies
+      command: yum autoremove -y {{item}}
+      with_items:
+        - gcc
+        - jansson-devel
+
+#
+# install socat to access the docker socket via bash
+#
+
+    - name: install socat
+      yum:
+        name=socat
+        state=latest
+
+#
+# setup the different docker containers
+#
 
     - name: setup rssdler docker container
       include: ../container/rssdler/setup.yml

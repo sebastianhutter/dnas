@@ -2,10 +2,13 @@
 	"folders":
 	[
 		{
-			"path": "~/Repository/dnas"
+			"path": "/home/shutter/Repository/dnas"
 		},
 		{
-			"path": "~/Repository/ansible/roles"
+			"path": "/home/shutter/Repository/ansible/roles"
+		},
+		{
+			"path": "/home/shutter/Repository/go"
 		}
 	],
 	"settings":

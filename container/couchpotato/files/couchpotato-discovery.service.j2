@@ -1,0 +1,9 @@
+[Unit]
+Description=Announce Couchpotato
+BindsTo=couchpotato.service
+After=couchpotato.service
+
+[Service]
+EnvironmentFile=/etc/sysconfig/dnas
+ExecStart/=bin/sh -c "while true; do etcdctl set --ttl 60 /services/couchpotato/ip `source /etc/sysconfig/dnas && get_container_ip couchpotato`; sleep 45; done"
+ExecStop=/usr/bin/etcdctl rm /services/couchpotato

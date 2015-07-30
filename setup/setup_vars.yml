@@ -1,7 +1,7 @@
----
+this---
 
 #
-# this configuration file contains the necessary environment variables for
+# 7 configuration file contains the necessary environment variables for
 # the different nas services (plex, sickbeard, rssdler, couchpotate, etc)
 #
 
@@ -19,11 +19,18 @@ etcd_database: "{{etcd_base}}/dnas.etcd"
 # the etcd download link
 etcd_version: etcd-v2.1.1-linux-amd64
 etcd_download: "https://github.com/coreos/etcd/releases/download/v2.1.1/{{etcd_version}}.tar.gz"
+etcd_install: /opt/etcd
+
+# the jsson download link
+jshon_download: https://github.com/keenerd/jshon.git
 
 #####
-# plex service
+# static port mapping for docker containers
 #####
-
+plex_port: 32400
+sabnzbd_port: 8085
+sickbeard_port: 8081
+couchpotato_port: 5050
 
 #####
 # rssdler service
