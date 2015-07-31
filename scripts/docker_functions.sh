@@ -116,7 +116,7 @@ function get_container_id {
   return 0
 }
 
-function get_container_data {
+function get_container_data_json {
   # this functions retrieves all information from a container
   # by its id (or name)
   container_id=$1
@@ -159,7 +159,7 @@ function get_container_value {
   fi
 
   id=`get_container_id $container_name`
-  data=`get_container_data $id`
+  data=`get_container_data_json $id`
 
   # read in the values (multilevel separated with .)
   IFS='.'
@@ -172,7 +172,7 @@ function get_container_value {
     searchstring="$searchstring -e $i"
   done
 
-  value=$(echo $data | $searchstring | sed 's/"//g')
+  value=$(echo $data | $searchstring)
 
   if [ -z "$value" ]; then
     echo "could not find the specified value $container_value in the container $container_name"
@@ -195,7 +195,7 @@ function get_container_ip {
     return 1
   fi
 
-  container_ip=`get_container_value $container_name NetworkSettings.IPAddress`
+  container_ip=$(get_container_value $container_name NetworkSettings.IPAddress | sed 's/"//g')
 
   if [ -z "$container_ip" ]; then
     echo "could not find an ip address for container $container_name"
@@ -217,7 +217,7 @@ function get_container_mac {
     return 1
   fi
 
-  container_mac=`get_container_value $container_name NetworkSettings.MacAddress`
+  container_mac=$(get_container_value $container_name NetworkSettings.MacAddress | sed 's/"//g')
 
   if [ -z "$container_ip" ]; then
     echo "could not find an ip address for container $container_name"
@@ -227,4 +227,31 @@ function get_container_mac {
   echo $container_mac
   return 0
 }
+
+function get_container_volume_path {
+  # this function gets the physical path of a volume exposed by the container
+  # it takes two paramters. the first parameter is the name or id of the container
+  # the second is the exposed volume to look for
+  container_name=$1
+  container_volume=$2
+
+  # check if a paramter is set
+  if [ -z "$container_name" ]; then
+    echo "please specify container name to look for"
+    return 1
+  fi
+  # check if a paramter is set
+  if [ -z "$container_volume" ]; then
+    echo "please specify container volume to look for"
+    return 1
+  fi
+
+  volumes=$(get_container_value $container_name Volumes)
+
+  echo $volumes | jshon -e $container_volume -u
+  return $?
+}
+
+
+
 
