@@ -157,12 +157,35 @@
 # could be done via etcd rpm!
 #
 
-    - name: copy the dnas scripts
-      command: cp -a ../scripts {{dnas_scripts}}
+    - name: create dnas script directory
+      file:
+        path={{dnas_scripts}}
+        state=directory
+        owner=root
+        group=root
+        mode=0644
 
+    - name: get all dnas scripts from setup
+      command: ls -1 ../scripts
+      register: files
+
+    - name: copy the dnas scripts
+      copy: cp -a ../scripts/{{item}} {{dnas_scripts}}
+        src=../scripts/{{item}}
+        dest={{dnas_scripts}}
+        owner=root
+        group=root
+        mode=0755
+      with_items: "{{files.stdout_lines}}"
 #
 # compile jsson - a json parser cli
 #
+
+    - name: clone jshon to parse jsson output in bash
+      git:
+        repo={{jshon_download}}
+        dest=/tmp/jshon
+      register: update
 
     - name: install jansson devel libraries
       yum:
@@ -171,24 +194,22 @@
       with_items:
         - jansson-devel
         - gcc
-
-    - name: clone jshon to parse jsson output in bash
-      git:
-        repo={{jshon_download}}
-        dest=/tmp/jshon
+      when: update.changed
 
     - name: compile jshon
       command: make chdir=/tmp/jshon
+      when: update.changed
 
     - name: install jshon
       command: make install chdir=/tmp/jshon
+      when: update.changed
 
     - name: remove jshon build dependencies
       command: yum autoremove -y {{item}}
       with_items:
         - gcc
         - jansson-devel
-
+      when: update.changed
 #
 # install socat to access the docker socket via bash
 #
