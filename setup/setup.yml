@@ -158,18 +158,14 @@
 #
 
 
-    - name: copy the dnas service start script
+    - name: copy the dnas scripts
       template:
-        src=files/dnas.sh.j2
-        dest=/dnas/dnas.sh
+        src=../scripts
+        dest={{dnas_scripts}}
         owner=root
         group=root
         mode=0755
-      register: systemd
-
-    - name: reload systemd daemon
-      command: systemctl daemon-reload
-      when: systemd.changed
+        directory_mode=yes
 
 #
 # compile jsson - a json parser cli

@@ -246,10 +246,14 @@ function get_container_volume_path {
     return 1
   fi
 
-  volumes=$(get_container_value $container_name Volumes)
-
-  echo $volumes | jshon -e $container_volume -u
-  return $?
+  volume=$(get_container_value $container_name Volumes | jshon -e $container_volume -u)
+  if [ $? -eq 0 ]; then
+    echo $volume
+    return 0
+  else
+    echo "could not find volume $container_volume"
+    return 1
+  fi
 }
 
 
