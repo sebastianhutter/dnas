@@ -219,7 +219,7 @@ function get_container_mac {
 
   container_mac=$(get_container_value $container_name NetworkSettings.MacAddress | sed 's/"//g')
 
-  if [ -z "$container_ip" ]; then
+  if [ -z "$container_mac" ]; then
     echo "could not find an ip address for container $container_name"
     return 1
   fi
@@ -256,6 +256,33 @@ function get_container_volume_path {
   fi
 }
 
+function get_container_port {
+  # this function retrieves the first exposed port of the container
+  # for now we assume that the first port number of the device is the
+  # port used by users and services to communicate to the system
 
+  # this is not quite how it should be handled but hey
+  # at least its a start
+
+  # the function takes one parameter, the name or id of the container
+  container_name=$1
+
+  # check if a paramter is set
+  if [ -z "$container_name" ]; then
+    echo "please specify container name to look for"
+    return 1
+  fi
+
+  ports=$(get_container_value $container_name NetworkSettings.Ports | jshon -a -e 0 -e HostPort -u)
+  if [ $? -eq 0 ]; then
+    echo $ports | cut -d" " -f1
+    return 0
+  else
+    echo "could not find ports for container $container_name"
+    return 1
+  fi
+
+
+}
 
 

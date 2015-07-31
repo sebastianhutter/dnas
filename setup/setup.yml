@@ -220,6 +220,16 @@
         state=latest
 
 #
+# install crudini to work with the different ini files
+# from the different containers
+#
+
+    - name: install crudini
+      yum:
+        name=crudini
+        state=latest
+
+#
 # setup the different docker containers
 #
 
