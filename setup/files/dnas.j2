@@ -7,7 +7,7 @@ plex_port={{plex_port}}
 sabnzbd_port={{sabnzbd_port}}
 sickbeard_port={{sickbeard_port}}
 couchpotato_port={{couchpotato_port}}
-
+dnas_scripts={{dnas_scripts}}
 
 
 {% raw %}
@@ -17,23 +17,6 @@ rssdler_daemon=`/usr/bin/docker inspect -f '{{index .Volumes "/var/lib/rssdler" 
 
 
 
-
-arr=($(echo -e "GET /images/json HTTP/1.1\r\n" | socat unix-connect:/var/run/docker.sock STDIO | sed '/^\s*$/d'))
-
-
-
-
-function get_container_ip {
-
-  ip=`docker inspect --format='{{.NetworkSettings.IPAddress}}' $1`
-
-  if [ $? -ne 0 ]; then
-    >&2 echo "could not retrieve ip from container '$1'"
-    exit 1
-  fi
-
-  echo $ip
-}
 
 {% endraw %}
 
