@@ -157,15 +157,8 @@
 # could be done via etcd rpm!
 #
 
-
     - name: copy the dnas scripts
-      template:
-        src=../scripts
-        dest={{dnas_scripts}}
-        owner=root
-        group=root
-        mode=0755
-        directory_mode=yes
+      command: cp -a ../scripts {{dnas_scripts}}
 
 #
 # compile jsson - a json parser cli
@@ -184,8 +177,11 @@
         repo={{jshon_download}}
         dest=/tmp/jshon
 
-    - name: compile and install jshon
-      command: make && make install chdir=/tmp/jshon
+    - name: compile jshon
+      command: make chdir=/tmp/jshon
+
+    - name: install jshon
+      command: make install chdir=/tmp/jshon
 
     - name: remove jshon build dependencies
       command: yum autoremove -y {{item}}
