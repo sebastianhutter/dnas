@@ -40,6 +40,7 @@ param="$@"
 if [ "$cmd" = 'start' ]; then
   for (( id=0 ; id<=${#services[@]}-1 ; id++ ))
   do
+    echo starting service ${services[id]}
     /usr/bin/systemctl start ${services[id]}
   done
   exit 0
@@ -49,6 +50,7 @@ fi
 if [ "$cmd" = 'stop' ]; then
   for (( id=${#services[@]}-1 ; id>=0 ; id-- ))
   do
+    echo stopping service ${services[id]}
     /usr/bin/systemctl stop ${services[id]}
   done
   exit 0
