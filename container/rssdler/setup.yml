@@ -33,6 +33,20 @@
   command: systemctl daemon-reload
   when: systemd.changed
 
+- name: install systemd file for rssdler discovery
+  template:
+    src=../container/rssdler/files/rssdler-discovery.service.j2
+    dest=/etc/systemd/system/rssdler-discovery.service
+    owner=root
+    group=root
+    mode=0755
+  register: systemd
+
+- name: reload systemd daemon
+  command: systemctl daemon-reload
+  when: systemd.changed
+
+
 - name: enable rssdler services
   service:
     name={{item}}

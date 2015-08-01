@@ -1,0 +1,9 @@
+[Unit]
+Description=rssdler Discovery Service
+BindsTo=rssdler.service
+After=rssdler.service
+
+[Service]
+EnvironmentFile=/etc/sysconfig/dnas
+ExecStart=/bin/sh -c "while true; do $DNASSCRIPTS/rssdler-discovery.sh start; sleep 45; done"
+ExecStop=$DNASSCRIPTS/rssdler-discovery.sh stop
