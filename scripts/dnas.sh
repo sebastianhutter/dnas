@@ -9,40 +9,48 @@ if [[ $EUID -ne 0 ]]; then
   exit 1
 fi
 
+# services to start or stop
+services=(
+library
+nzbtomedia
+rssdler-data
+rssdler-discovery
+rssdler
+sabnzbd-data
+sabnzbd-discovery
+sabnzbd
+plex-data
+plex-discovery
+plex
+sickbeard-data
+sickbeard-discovery
+sickbeard
+couchpotato-data
+couchpotato-discovery
+couchpotato
+)
+
+
+
 cmd=$1
 shift
 param="$@"
 
+
 if [ "$cmd" = 'start' ]; then
-  /usr/bin/systemctl start library
-  /usr/bin/systemctl start nzbtomedia
-  /usr/bin/systemctl start rssdler-data
-  /usr/bin/systemctl start rssdler
-  /usr/bin/systemctl start sabnzbd-data
-  /usr/bin/systemctl start sabnzbd
-  /usr/bin/systemctl start plex-data
-  /usr/bin/systemctl start plex
-  /usr/bin/systemctl start sickbeard-data
-  /usr/bin/systemctl start sickbeard
-  /usr/bin/systemctl start couchpotato-data
-  /usr/bin/systemctl start couchpotato
+  for (( id=0 ; id<=${#services[@]}-1 ; id++ ))
+  do
+    /usr/bin/systemctl start ${services[id]}
+  done
   exit 0
 fi
 
 
 if [ "$cmd" = 'stop' ]; then
-  /usr/bin/docker stop couchpotato
-  /usr/bin/docker stop couchpotato-data
-  /usr/bin/docker stop sickbeard
-  /usr/bin/docker stop sickbeard-data
-  /usr/bin/docker stop plex
-  /usr/bin/docker stop plex-data
-  /usr/bin/docker stop sabnzbd
-  /usr/bin/docker stop sabnzbd-data
-  /usr/bin/docker stop rssdler
-  /usr/bin/docker stop rssdler-data
-  /usr/bin/docker stop nzbtomedia
-  /usr/bin/docker stop library
+  for (( id=${#services[@]}-1 ; id>=0 ; id-- ))
+  do
+    /usr/bin/systemctl stop ${services[id]}
+  done
   exit 0
 fi
 
