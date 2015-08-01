@@ -1,7 +1,7 @@
 [Unit]
 Description=Sabnzbd Discovery Service
 BindsTo=sabnzbd.service
-Before=sabnzbd.service
+After=sabnzbd.service
 
 [Service]
 EnvironmentFile=/etc/sysconfig/dnas

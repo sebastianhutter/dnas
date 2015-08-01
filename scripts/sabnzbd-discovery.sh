@@ -8,8 +8,10 @@
 
 # import basic bash functions to retrieve information from docker containers
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+source /etc/profile.d/etcd.sh
 source $DIR/docker_functions.sh
 source $DIR/service_functions.sh
+
 
 # container name
 container=sabnzbd
@@ -52,7 +54,7 @@ if [ "$cmd" = 'start' ]; then
 
   # now get the couchpotato api key, username and password and store them in the runtime part
   # those values will be used by other containers to autoconfigure
-  echo set couchpotato api_key, username and password
+  echo set sabnzbd api_key, username and password
   etcdctl set $db_runtime/api_key "$(crudini --get `etcdctl get $db_runtime/config` misc api_key)" > /dev/null
   etcdctl set $db_runtime/username "$(crudini --get `etcdctl get $db_runtime/config` misc username)" > /dev/null
   etcdctl set $db_runtime/password "$(crudini --get `etcdctl get $db_runtime/config` misc password)" > /dev/null
@@ -60,7 +62,6 @@ if [ "$cmd" = 'start' ]; then
   # initialise the custom configuration of the service
   echo create config key
   create_db_customconf $db_custom_config
-
 
   # read the custom configuration of the service
   echo read custom configuration

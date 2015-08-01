@@ -8,8 +8,10 @@
 
 # import basic bash functions to retrieve information from docker containers
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+source /etc/profile.d/etcd.sh
 source $DIR/docker_functions.sh
 source $DIR/service_functions.sh
+
 
 # container name
 container=sickbeard
