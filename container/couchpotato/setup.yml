@@ -26,6 +26,18 @@
   command: systemctl daemon-reload
   when: systemd.changed
 
+- name: install systemd file for couchpotato discovery
+    src=../container/couchpotato/files/couchpotato-discovery.service.j2
+    dest=/etc/systemd/system/couchpotato-discovery.service
+    owner=root
+    group=root
+    mode=0755
+  register: systemd
+
+- name: reload systemd daemon
+  command: systemctl daemon-reload
+  when: systemd.changed
+
 - name: enable couchpotato services
   service:
     name={{item}}
@@ -33,4 +45,5 @@
   with_items:
     - couchpotato
     - couchpotato-data
+    - couchpotato-discovery
 

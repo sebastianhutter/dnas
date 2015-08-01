@@ -26,6 +26,19 @@
   command: systemctl daemon-reload
   when: systemd.changed
 
+- name: install systemd file for sickbeard discovery
+  template:
+    src=../container/sickbeard/files/sickbeard-discovery.service.j2
+    dest=/etc/systemd/system/sickbeard-discovery.service
+    owner=root
+    group=root
+    mode=0755
+  register: systemd
+
+- name: reload systemd daemon
+  command: systemctl daemon-reload
+  when: systemd.changed
+
 - name: enable sickbeard services
   service:
     name={{item}}
@@ -33,3 +46,4 @@
   with_items:
     - sickbeard
     - sickbeard-data
+    - sickbeard-discovery

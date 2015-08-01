@@ -11,10 +11,10 @@ source ./docker_functions.sh
 source ./service_functions.sh
 
 # container name
-container=couchpotato
+container=sickbeard
 
 # basic variables for the etcd service
-db_root=/services/couchpotato
+db_root=/services/sickbeard
 db_runtime=$db_root/run
 db_custom_config=$db_root/config
 
@@ -46,15 +46,15 @@ if [ "$cmd" = 'start' ]; then
 
   # set additional runtime values for the service
   echo set path to service configuration file
-  etcdctl set $db_runtime/workingdir `get_container_volume_path $container /home/couchpotato/.couchpotato` > /dev/null
-  etcdctl set $db_runtime/config `get_container_volume_path $container /home/couchpotato/.couchpotato`/settings.conf > /dev/null
+  etcdctl set $db_runtime/workingdir `get_container_volume_path $container /opt/sickbeard-data` > /dev/null
+  etcdctl set $db_runtime/config `get_container_volume_path $container /opt/sickbeard-data`/config.ini > /dev/null
 
   # now get the couchpotato api key, username and password and store them in the runtime part
   # those values will be used by other containers to autoconfigure
   echo set couchpotato api_key, username and password
-  etcdctl set $db_runtime/api_key "$(crudini --get `etcdctl get $db_runtime/config` core api_key)" > /dev/null
-  etcdctl set $db_runtime/username "$(crudini --get `etcdctl get $db_runtime/config` core username)" > /dev/null
-  etcdctl set $db_runtime/password "$(crudini --get `etcdctl get $db_runtime/config` core password)" > /dev/null
+  etcdctl set $db_runtime/api_key "$(crudini --get `etcdctl get $db_runtime/config` General api_key)" > /dev/null
+  etcdctl set $db_runtime/username "$(crudini --get `etcdctl get $db_runtime/config` General web_username)" > /dev/null
+  etcdctl set $db_runtime/password "$(crudini --get `etcdctl get $db_runtime/config` General web_password)" > /dev/null
 
   # initialise the custom configuration of the service
   echo create config key
@@ -70,9 +70,9 @@ if [ "$cmd" = 'start' ]; then
   #
   echo copy values from other services to the custom configuration
   echo copy sabnzbd host and api key
-  copy_service_configuration $sabnzbd_ip $db_custom_config/sabnzbd/host
-  copy_service_configuration $sabnzbd_port $db_custom_config/sabnzbd/host append :
-  copy_service_configuration $sabnzbd_apikey $db_custom_config/sabnzbd/api_key
+  copy_service_configuration $sabnzbd_ip $db_custom_config/SABnzbd/sab_host
+  copy_service_configuration $sabnzbd_port $db_custom_config/SABnzbd/sab_host append :
+  copy_service_configuration $sabnzbd_apikey $db_custom_config/SABnzbd/sab_apikey
 
 
   # read the custom configuration of the service
@@ -103,3 +103,9 @@ if [ "$cmd" = 'stop' ]; then
   echo remove running configuration from etcd
   delete_db_runtime_values $db_runtime
 fi
+
+
+
+
+
+
