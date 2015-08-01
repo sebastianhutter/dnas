@@ -11,8 +11,8 @@ if [ "$cmd" = 'couchpotato' ]; then
   # if the configuration file does not exist copy it
   # attention: this config file should not have the api_key defined!
   if [ ! -f /home/couchpotato/.couchpotato/settings.conf ]; then
-      cp /opt/settings.conf /home/couchpotato/.couchpotato/settings.conf
-    fi
+    cp /opt/settings.conf /home/couchpotato/.couchpotato/settings.conf
+  fi
 
   exec python /opt/couchpotato/CouchPotato.py $param
 fi

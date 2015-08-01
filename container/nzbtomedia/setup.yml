@@ -13,7 +13,23 @@
   command: systemctl daemon-reload
   when: systemd.changed
 
+- name: install systemd file for nzbtomedia discovery
+  template:
+    src=../container/nzbtomedia/files/nzbtomedia-discovery.service.j2
+    dest=/etc/systemd/system/nzbtomedia-discovery.service
+    owner=root
+    group=root
+    mode=0755
+  register: systemd
+
+- name: reload systemd daemon
+  command: systemctl daemon-reload
+  when: systemd.changed
+
 - name: enable nzbtomedia services
   service:
-    name=nzbtomedia
+    name={{item}}
     enabled=yes
+  with_items:
+    - nzbtomedia
+    - nzbtomedia-discovery
