@@ -45,7 +45,8 @@ if [ "$cmd" = 'start' ]; then
   # set additional runtime values for the service
   echo set path to service configuration file
   etcdctl set $db_runtime/workingdir `get_container_volume_path $container /var/lib/rssdler` > /dev/null
-  etcdctl set $db_runtime/config `get_container_volume_path $container /var/lib/rssdler`/config.ini > /dev/null
+  etcdctl set $db_runtime/config `get_container_volume_path $container /var/lib/rssdler`/rssdler.conf > /dev/null
+  etcdctl set $db_runtime/pid `get_container_volume_path $container /var/lib/rssdler`/workingdir/daemon.info > /dev/null
 
   # initialise the custom configuration of the service
   echo create config key
@@ -76,6 +77,8 @@ fi
 
 if [ "$cmd" = 'stop' ]; then
   # if stop is executed remove the running configuration of the couchpotato service
+  echo remove pid file
+  rm -f `etcdctl get $db_runtime/pid`
   echo remove running configuration from etcd
   delete_db_runtime_values $db_runtime
 fi
