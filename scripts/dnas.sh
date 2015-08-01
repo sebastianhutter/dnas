@@ -19,6 +19,7 @@ rssdler-discovery
 sabnzbd-data
 sabnzbd
 sabnzbd-discovery
+nzbtomedia-discovery
 plex-data
 plex-discovery
 plex
