@@ -84,7 +84,7 @@ function get_container_id {
   fi
 
   # get all running containers
-  containers=`docker_get_json "/containers/json"`
+  containers=`docker_get_json "/containers/json?all=true"`
 
   # return the elements in the returned array
   container_count=`echo $containers | jshon -l`
