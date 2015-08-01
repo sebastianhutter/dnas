@@ -10,13 +10,13 @@ function set_db_runtime_container_values {
   # check if a paramter is set
   container=$1
   if [ -z "$container" ]; then
-    echo "please specify container name to look for"
+    >&2 echo "please specify container name to look for"
     return 1
   fi
 
   db_runtime=$2
   if [ -z "$db_runtime" ]; then
-    echo "please specify the etcd path of the runtime config"
+    >&2 echo "please specify the etcd path of the runtime config"
    return 1
   fi
 
@@ -35,7 +35,7 @@ function delete_db_runtime_values {
 
   db_runtime=$1
   if [ -z "$db_runtime" ]; then
-    echo "please specify the etcd path of the runtime config"
+    >&2 echo "please specify the etcd path of the runtime config"
    return 1
   fi
 
@@ -52,7 +52,7 @@ function create_db_customconf {
 
   db_custom_config=$1
   if [ -z "$db_custom_config" ]; then
-    echo "please specify the etcd path for the custom config"
+   >&2 echo "please specify the etcd path for the custom config"
    return 1
   fi
 
@@ -76,21 +76,21 @@ function copy_service_configuration {
   # check if a paramter is set
   source_key=$1
   if [ -z "$source_key" ]; then
-    echo "please specify a source key"
+    >&2echo "please specify a source key"
     return 1
   fi
 
   # check if a paramter is set
   dest_key=$2
   if [ -z "$dest_key" ]; then
-    echo "please specify a destination key"
+    >&2echo "please specify a destination key"
     return 1
   fi
 
   # get the source value and check if it exists
   source_value=`etcdctl get $source_key 2> /dev/null`
   if [ -z "$source_value" ]; then
-    echo "could not find a value at $source_key"
+    >&2echo "could not find a value at $source_key"
     return 1
   fi
 
@@ -107,7 +107,7 @@ function copy_service_configuration {
       if [ "$3" = 'prepend' ]; then
         destination_value=$source_value$4$destination_value
       else
-        echo "please use 'append' or 'prepend' as parameter"
+        >&2 echo "please use 'append' or 'prepend' as parameter"
         return 1
       fi
     fi
@@ -142,7 +142,7 @@ function read_db_customconf_values {
   # check if a paramter is set
   db_custom_config=$1
   if [ -z "$db_custom_config" ]; then
-    echo "please specify the etcd path for the custom config"
+    >&2 echo "please specify the etcd path for the custom config"
     return 1
   fi
 
@@ -176,14 +176,14 @@ function compare_configuration {
 
   service_configuration=$1
   if [ -z "$service_configuration" ]; then
-    echo "please specify the path to the service configuration file"
+    >&2 echo "please specify the path to the service configuration file"
     return 1
   fi
 
   # check if a paramter is set
   custom_configuration=$2
   if [ -z "$custom_configuration" ]; then
-    echo "please specify the custom configuration in ini format"
+    >&2 echo "no custom configuration given, either custom config is empty or was not added als parameter"
     return 1
   fi
 
@@ -203,14 +203,14 @@ function merge_configuration {
   # check if a paramter is set
   service_configuration=$1
   if [ -z "$service_configuration" ]; then
-    echo "please specify the path to the service configuration file"
+    >&2 echo "please specify the path to the service configuration file"
     return 1
   fi
 
   # check if a paramter is set
   custom_configuration=$2
   if [ -z "$custom_configuration" ]; then
-    echo "please specify the custom configuration in ini format"
+    >&2 echo "please specify the custom configuration in ini format"
     return 1
   fi
 
@@ -226,7 +226,7 @@ function merge_configuration {
   if [ "$?" -eq "0" ]; then
     return 0
   else
-    echo "the merge returned an error"
+    >&2 echo "the merge returned an error"
     return 1
   fi
 }
