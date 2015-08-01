@@ -13,7 +13,7 @@ if [ "$cmd" = 'nzbtomedia' ]; then
   # unsuccessfull download
 
   # if the configuration file does not exist copy it
-  if [ ! -f /opt/nzbtomedia/autoProcessMedia.cfg.spec ]; then
+  if [ ! -f /opt/nzbtomedia/autoProcessMedia.cfg ]; then
     cp /opt/nzbtomedia/autoProcessMedia.cfg.spec /opt/nzbtomedia/autoProcessMedia.cfg
   fi
 
