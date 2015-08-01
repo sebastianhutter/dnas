@@ -6,4 +6,4 @@ After=couchpotato.service
 [Service]
 EnvironmentFile=/etc/sysconfig/dnas
 ExecStart=/bin/sh -c "while true; do $DNASSCRIPTS/couchpotato-discovery.sh start; sleep 45; done"
-ExecStop=/bin/sh -c "$DNASSCRIPTS/couchpotato-discovery.sh stop"
+ExecStop=$DNASSCRIPTS/couchpotato-discovery.sh stop
