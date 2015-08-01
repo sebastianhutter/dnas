@@ -44,14 +44,6 @@
         group=sickbeard
         mode=0755
 
-    - name: copy default config file into sickbeard_data
-      copy:
-        src=config.ini
-        dest=/opt/sickbeard-data/config.ini
-        owner=sickbeard
-        group=sickbeard
-        mode=0644
-
     - name: create sickbeard db in sickbeard_data
       file:
         path=/opt/sickbeard-data/sickbeard.db
@@ -82,6 +74,7 @@
         dest=/opt/sickbeard/{{item}}
         owner=sickbeard
         group=sickbeard
+        force=yes
         state=link
       with_items:
         - config.ini
@@ -91,6 +84,14 @@
 
     - name: set sickbeard ownership of all files
       command: chown -R sickbeard:sickbeard /opt/sickbeard
+
+    - name: copy default config file to /opt
+      copy:
+        src=config.ini
+        dest=/opt/config.ini
+        owner=sickbeard
+        group=sickbeard
+        mode=0644
 
     - name: copy the entrypoint script
       copy:

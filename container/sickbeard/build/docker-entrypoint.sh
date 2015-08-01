@@ -8,7 +8,12 @@ param="$@"
 # if the first paramter is plex start the
 # plex media service
 if [ "$cmd" = 'sickbeard' ]; then
-  cd
+
+  # if the configuration file does not exist copy it
+  if [ ! -f /opt/sickbeard-data/config.ini ]; then
+    cp /opt/config.ini /opt/sickbeard-data/config.ini
+  fi
+
   exec python /opt/sickbeard/SickBeard.py $param
 fi
 
