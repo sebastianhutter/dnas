@@ -13,7 +13,7 @@ ExecStartPre=-/usr/bin/docker create --name library \
   library
 ExecStart=/usr/bin/docker start library
 ExecStop=/usr/bin/docker stop library
-Restart=never
+Restart=no
 
 [Install]
 WantedBy=multi-user.target

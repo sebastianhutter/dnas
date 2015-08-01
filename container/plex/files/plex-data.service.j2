@@ -13,7 +13,7 @@ ExecStartPre=-/usr/bin/docker create --name plex-data \
   /bin/true
 ExecStart=/usr/bin/docker start plex-data
 ExecStop=/usr/bin/docker stop plex-data
-Restart=never
+Restart=no
 
 [Install]
 WantedBy=multi-user.target

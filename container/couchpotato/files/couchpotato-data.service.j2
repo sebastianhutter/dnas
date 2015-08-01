@@ -14,7 +14,7 @@ ExecStartPre=-/usr/bin/docker create --name couchpotato-data \
   /bin/true
 ExecStart=/usr/bin/docker start couchpotato-data
 ExecStop=/usr/bin/docker stop couchpotato-data
-Restart=on-failure
+Restart=no
 
 [Install]
 WantedBy=multi-user.target

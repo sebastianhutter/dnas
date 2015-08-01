@@ -14,7 +14,7 @@ ExecStartPre=-/usr/bin/docker create --name sabnzbd-data \
   /bin/true
 ExecStart=/usr/bin/docker start sabnzbd-data
 ExecStop=/usr/bin/docker stop sabnzbd-data
-Restart=never
+Restart=no
 
 [Install]
 WantedBy=multi-user.target

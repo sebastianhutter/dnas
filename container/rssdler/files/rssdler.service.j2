@@ -17,7 +17,7 @@ ExecStart=/usr/bin/docker run --name rssdler \
   sebastianhutter/rssdler \
   rssdler --config /var/lib/rssdler/rssdler.conf -r
 ExecStop=/usr/bin/docker stop rssdler
-Restart=never
+Restart=no
 
 [Install]
 WantedBy=multi-user.target

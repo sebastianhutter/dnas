@@ -3,20 +3,9 @@
 #
 
 # variables for systemd files
-plex_port={{plex_port}}
-sabnzbd_port={{sabnzbd_port}}
-sickbeard_port={{sickbeard_port}}
-couchpotato_port={{couchpotato_port}}
-dnas_scripts={{dnas_scripts}}
+PLEXPORT={{plex_port}}
+SABNZBDPORT={{sabnzbd_port}}
+SICKBEARDPORT={{sickbeard_port}}
+COUCHPORT={{couchpotato_port}}
 
-
-{% raw %}
-
-etcd_ip=`ip add show dev docker0 | grep inet | sed -e 's/^[ \t]*//' | cut -d" " -f2 | sed -e 's/\///'`
-rssdler_daemon=`/usr/bin/docker inspect -f '{{index .Volumes "/var/lib/rssdler" }}' rssdler`/workingdir/daemon.info
-
-
-
-
-{% endraw %}
-
+DNASSCRIPTS={{dnas_scripts}}

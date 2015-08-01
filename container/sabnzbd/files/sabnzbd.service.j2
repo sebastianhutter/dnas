@@ -12,11 +12,11 @@ ExecStart=/usr/bin/docker run --name sabnzbd \
   --volumes-from sabnzbd-data \
   --volumes-from library \
   --volumes-from nzbtomedia \
-  -p $sabnzbd_port:8085 \
+  -p $SABNZBDPORT:8085 \
   sebastianhutter/sabnzbd \
   sabnzbd
 ExecStop=/usr/bin/docker stop sabnzbd
-Restart=never
+Restart=no
 
 [Install]
 WantedBy=multi-user.target

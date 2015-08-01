@@ -13,7 +13,7 @@ ExecStartPre=-/usr/bin/docker create --name sickbeard-data \
   /bin/true
 ExecStart=/usr/bin/docker start sickbeard-data
 ExecStop=/usr/bin/docker stop sickbeard-data
-Restart=never
+Restart=no
 
 [Install]
 WantedBy=multi-user.target
