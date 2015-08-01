@@ -9,9 +9,17 @@
         name=library
         system=yes
 
-    - name: create library directory
+    - name: create library directory - used to store processed media
       file:
         path=/Library
+        owner=library
+        group=library
+        mode=0777
+        state=directory
+
+    - name: create transfer directory - used to store unprocessed media - freshly downloaded or in progress
+      file:
+        path=/Transfer
         owner=library
         group=library
         mode=0777

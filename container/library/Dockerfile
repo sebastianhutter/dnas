@@ -14,6 +14,7 @@ WORKDIR /
 RUN rm -rf /tmp/build
 
 VOLUME /Library
+VOLUME /Transfer
 
 # become rssdler user
 USER library
