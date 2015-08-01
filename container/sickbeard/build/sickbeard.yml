@@ -44,12 +44,10 @@
         group=sickbeard
         mode=0755
 
-
-
-    - name: create config file in sickbeard_data
-      file:
-        path=/opt/sickbeard-data/config.ini
-        state=touch
+    - name: copy default config file into sickbeard_data
+      copy:
+        src=config.ini
+        dest=/opt/sickbeard-data/config.ini
         owner=sickbeard
         group=sickbeard
         mode=0644

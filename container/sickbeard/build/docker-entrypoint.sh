@@ -8,8 +8,6 @@ param="$@"
 # if the first paramter is plex start the
 # plex media service
 if [ "$cmd" = 'sickbeard' ]; then
-  # the plexmedia server can be started by simply running the start script
-  # in the plexmedia server lib directory
   cd
   exec python /opt/sickbeard/SickBeard.py $param
 fi
