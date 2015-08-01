@@ -43,7 +43,7 @@ if [ "$cmd" = 'start' ]; then
   do
     echo starting service ${services[id]}
     /usr/bin/systemctl start ${services[id]}
-    sleep 5
+    #sleep 5
   done
   exit 0
 fi
@@ -54,7 +54,7 @@ if [ "$cmd" = 'stop' ]; then
   do
     echo stopping service ${services[id]}
     /usr/bin/systemctl stop ${services[id]}\
-    sleep 5
+    #sleep 5
   done
   exit 0
 fi
