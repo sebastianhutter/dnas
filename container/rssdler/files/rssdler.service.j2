@@ -18,6 +18,10 @@ ExecStart=/usr/bin/docker run --name rssdler \
   rssdler --config /var/lib/rssdler/rssdler.conf -r
 ExecStop=/usr/bin/docker stop rssdler
 Restart=on-failure
+# up the timeout values
+RestartSec=2s
+TimeoutStartSec=10s
+
 
 [Install]
 WantedBy=multi-user.target

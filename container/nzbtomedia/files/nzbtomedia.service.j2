@@ -13,7 +13,11 @@ ExecStartPre=-/usr/bin/docker create --name nzbtomedia \
   nzbtomedia
 ExecStart=/usr/bin/docker start nzbtomedia
 ExecStop=/usr/bin/docker stop nzbtomedia
-Restart=no
+Restart=on-failure
+# up the timeout values
+RestartSec=2s
+TimeoutStartSec=10s
+
 
 [Install]
 WantedBy=multi-user.target

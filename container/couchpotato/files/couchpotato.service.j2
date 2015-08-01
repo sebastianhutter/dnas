@@ -14,7 +14,10 @@ ExecStart=/usr/bin/docker run --name couchpotato \
   sebastianhutter/couchpotato \
   couchpotato
 ExecStop=/usr/bin/docker stop couchpotato
-Restart=no
+Restart=on-failure
+# up the timeout values
+RestartSec=2s
+TimeoutStartSec=10s
 
 [Install]
 WantedBy=multi-user.target
