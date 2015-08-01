@@ -10,7 +10,7 @@ ExecStartPre=-/usr/bin/docker rm couchpotato
 ExecStartPre=/usr/bin/docker pull sebastianhutter/couchpotato
 ExecStart=/usr/bin/docker run --name couchpotato \
   --volumes-from couchpotato-data \
-  -p $COUCHPORT:5050 \
+  -p {{couchpotato_port}}:5050 \
   sebastianhutter/couchpotato \
   couchpotato
 ExecStop=/usr/bin/docker stop couchpotato

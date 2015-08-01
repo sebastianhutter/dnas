@@ -11,7 +11,7 @@ ExecStartPre=/usr/bin/docker pull sebastianhutter/sickbeard
 ExecStart=/usr/bin/docker run --name sickbeard \
   --volumes-from sickbeard-data \
   --link sabnzbd \
-  -p $SICKBEARDPORT:8081 \
+  -p {{sickbeard_port}}:8081 \
   sebastianhutter/sickbeard \
   sickbeard
 ExecStop=/usr/bin/docker stop sickbeard

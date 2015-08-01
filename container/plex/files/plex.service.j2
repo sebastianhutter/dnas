@@ -11,7 +11,7 @@ ExecStartPre=/usr/bin/docker pull sebastianhutter/plex
 ExecStart=/usr/bin/docker run --name plex \
   --volumes-from plex-data \
   --volumes-from library \
-  -p $PLEXPORT:32400 \
+  -p {{plex_port}}:32400 \
   sebastianhutter/plex \
   plex
 ExecStop=/usr/bin/docker stop plex

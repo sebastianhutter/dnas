@@ -7,8 +7,9 @@
 # to the etcd database
 
 # import basic bash functions to retrieve information from docker containers
-source ./docker_functions.sh
-source ./service_functions.sh
+DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+source $DIR/docker_functions.sh
+source $DIR/service_functions.sh
 
 # container name
 container=sickbeard
