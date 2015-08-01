@@ -27,6 +27,7 @@
   when: systemd.changed
 
 - name: install systemd file for couchpotato discovery
+  template:
     src=../container/couchpotato/files/couchpotato-discovery.service.j2
     dest=/etc/systemd/system/couchpotato-discovery.service
     owner=root
