@@ -11,7 +11,7 @@ if [ "$cmd" = 'nzbtomedia' ]; then
   # the nzbtomedia container only serves up the necessary
   # scripts for sabnzbd to execute after a successfull or
   # unsuccessfull download
-  /bin/true
+  exec /bin/true
 fi
 
 # if the first paramter is not plex start
