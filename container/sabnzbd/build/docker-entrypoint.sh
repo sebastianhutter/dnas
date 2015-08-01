@@ -8,9 +8,14 @@ param="$@"
 # if the first paramter is plex start the
 # plex media service
 if [ "$cmd" = 'sabnzbd' ]; then
-  # the plexmedia server can be started by simply running the start script
-  # in the plexmedia server lib directory
-  cd
+
+  # if the configuration file does not exist copy it
+  # attention: this config file should not have the api_key parameter defined!
+  if [ ! -f /home/sabnzbd/.sabnzbd/sabnzbd.ini ]; then
+    cp /opt/sabnzbd.ini /home/sabnzbd/.sabnzbd/sabnzbd.ini
+  fi
+
+
   exec python /opt/sabnzbd/SABnzbd.py $param
 fi
 

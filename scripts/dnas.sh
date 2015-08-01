@@ -14,20 +14,20 @@ services=(
 library
 nzbtomedia
 rssdler-data
-rssdler-discovery
 rssdler
+rssdler-discovery
 sabnzbd-data
-sabnzbd-discovery
 sabnzbd
+sabnzbd-discovery
 plex-data
 plex-discovery
 plex
 sickbeard-data
-sickbeard-discovery
 sickbeard
+sickbeard-discovery
 couchpotato-data
-couchpotato-discovery
 couchpotato
+couchpotato-discovery
 )
 
 
@@ -42,6 +42,7 @@ if [ "$cmd" = 'start' ]; then
   do
     echo starting service ${services[id]}
     /usr/bin/systemctl start ${services[id]}
+    sleep 5
   done
   exit 0
 fi
@@ -51,7 +52,8 @@ if [ "$cmd" = 'stop' ]; then
   for (( id=${#services[@]}-1 ; id>=0 ; id-- ))
   do
     echo stopping service ${services[id]}
-    /usr/bin/systemctl stop ${services[id]}
+    /usr/bin/systemctl stop ${services[id]}\
+    sleep 5
   done
   exit 0
 fi

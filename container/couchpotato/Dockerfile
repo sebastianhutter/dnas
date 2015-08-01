@@ -13,5 +13,5 @@ EXPOSE 5050
 USER couchpotato
 # run the rssdler script
 ENTRYPOINT ["/opt/docker-entrypoint.sh"]
-CMD ["couchpotato" ,"-s", "0.0.0.0:8085"]
+CMD ["couchpotato"]
 

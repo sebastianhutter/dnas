@@ -92,3 +92,10 @@
         group=root
         mode=0755
 
+    - name: copy the default sabnzbd settings to /opt
+      copy:
+        src=sabnzbd.ini
+        dest=/opt/sabnzbd.ini
+        owner=sabnzbd
+        group=sabnzbd
+        mode=0644

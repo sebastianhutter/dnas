@@ -42,3 +42,10 @@
         group=root
         mode=0755
 
+    - name: copy the default couchpotato settings to /opt
+      copy:
+        src=settings.conf
+        dest=/opt/settings.conf
+        owner=couchpotato
+        group=couchpotato
+        mode=0644
