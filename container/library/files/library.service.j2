@@ -9,6 +9,7 @@ ExecStartPre=-/usr/bin/docker kill library
 ExecStartPre=-/usr/bin/docker pull sebastianhutter/library
 ExecStartPre=-/usr/bin/docker create --name library \
   --volume /Library \
+  --volume /Transfer \
   sebastianhutter/library \
   library
 ExecStart=/usr/bin/docker start library
