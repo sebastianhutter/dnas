@@ -165,6 +165,7 @@ function set_db_customconf_value {
   return 0
 }
 
+
 function read_db_customconf_values {
   # the etcd database also holds some custom configuration values which allows overwriting
   # the configuration file of the service without root access to the docker data contaienr
@@ -245,7 +246,6 @@ function compare_configuration {
   # 2 = the custom configruation returned by the function read_db_customconf_values
 
   # check if a paramter is set
-
   service_configuration=$1
   if [ -z "$service_configuration" ]; then
     >&2 echo "please specify the path to the service configuration file"
@@ -274,6 +274,7 @@ function compare_configuration {
   # now create a temporary file in the same directory as the service configuration file
   temporary_service_configuration=`mktemp -p ${service_configuration%/*}`
   cat $service_configuration | sed -e 's/\[\[/[-----/g' -e 's/\]\]/-----]/g' > $temporary_service_configuration
+
 
   # get the differences via crudini
   differences=$(comm -13 <(crudini --get --format=lines $temporary_service_configuration | sort) <(echo -e $custom_configuration | crudini --get --format=lines -| sort))

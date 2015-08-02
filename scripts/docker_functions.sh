@@ -62,7 +62,7 @@ function docker_get_json {
     return 0
   else
     echo "could not retrieve data from docker api - ${data[STATUS]}"
-    return 1
+    >&2 return 1
   fi
   # revert the IFS change
   unset IFS
@@ -79,7 +79,7 @@ function get_container_id {
 
   # check if a paramter is set
   if [ -z "$container_name" ]; then
-    echo "please specify container name to look for"
+    >&2 echo "please specify container name to look for"
     return 1
   fi
 
@@ -88,9 +88,6 @@ function get_container_id {
 
   # return the elements in the returned array
   container_count=`echo $containers | jshon -l`
-
-  #  jshon -e 0 -e Names -l
-
 
   # now loop trough the array of containers
   for (( i=0; i<$container_count; i++ ))
@@ -108,7 +105,7 @@ function get_container_id {
   done
 
   if [ -z "$id" ]; then
-    echo "no container id found for $container_name"
+    >&2 echo "no container id found for $container_name"
     return 1
   fi
 
@@ -123,7 +120,7 @@ function get_container_data_json {
 
   # check if a paramter is set
   if [ -z "$container_id" ]; then
-    echo "please specify container id to look for"
+    >&2 echo "please specify container id to look for"
     return 1
   fi
 
@@ -132,7 +129,7 @@ function get_container_data_json {
 
   # check if we received container data
   if [ -z "$container_data" ]; then
-    echo "could not retrieve any data for the container with id $container_id"
+    >&2 echo "could not retrieve any data for the container with id $container_id"
     return 1
   fi
 
@@ -149,12 +146,12 @@ function get_container_value {
 
   # check if a paramter is set
   if [ -z "$container_name" ]; then
-    echo "please specify container name to look for"
+    >&2 echo "please specify container name to look for"
     return 1
   fi
   # check if a paramter is set
   if [ -z "$container_value" ]; then
-    echo "please specify container value to look for"
+    >&2 echo "please specify container value to look for"
     return 1
   fi
 
@@ -175,7 +172,7 @@ function get_container_value {
   value=$(echo $data | $searchstring)
 
   if [ -z "$value" ]; then
-    echo "could not find the specified value $container_value in the container $container_name"
+    >&2 echo "could not find the specified value $container_value in the container $container_name"
     return 1
   fi
 
@@ -188,22 +185,21 @@ function get_container_ip {
   # this function gets the ip address from a running container
   # it takes the name of the container as parameter
   container_name=$1
-
   # check if a paramter is set
   if [ -z "$container_name" ]; then
-    echo "please specify container name to look for"
+    >&2 echo "please specify container name to look for"
     return 1
   fi
 
   container_ip=$(get_container_value $container_name NetworkSettings.IPAddress | sed 's/"//g')
+  echo $container_ip
 
   if [ -z "$container_ip" ]; then
-    echo "could not find an ip address for container $container_name"
+    >&2 echo "could not find an ip address for container $container_name"
     return 1
+  else
+    return 0
   fi
-
-  echo $container_ip
-  return 0
 }
 
 function get_container_mac {
@@ -213,19 +209,19 @@ function get_container_mac {
 
   # check if a paramter is set
   if [ -z "$container_name" ]; then
-    echo "please specify container name to look for"
+    >&2 echo "please specify container name to look for"
     return 1
   fi
 
   container_mac=$(get_container_value $container_name NetworkSettings.MacAddress | sed 's/"//g')
+  echo $container_mac
 
   if [ -z "$container_mac" ]; then
-    echo "could not find an ip address for container $container_name"
+    >&2 echo "could not find an ip address for container $container_name"
     return 1
+  else
+    return 0
   fi
-
-  echo $container_mac
-  return 0
 }
 
 function get_container_volume_path {
@@ -237,12 +233,12 @@ function get_container_volume_path {
 
   # check if a paramter is set
   if [ -z "$container_name" ]; then
-    echo "please specify container name to look for"
+    >&2 echo "please specify container name to look for"
     return 1
   fi
   # check if a paramter is set
   if [ -z "$container_volume" ]; then
-    echo "please specify container volume to look for"
+    >&2 echo "please specify container volume to look for"
     return 1
   fi
 
@@ -251,7 +247,8 @@ function get_container_volume_path {
     echo $volume
     return 0
   else
-    echo "could not find volume $container_volume"
+    >&2 echo "could not find volume $container_volume"
+    echo $volume
     return 1
   fi
 }
@@ -269,6 +266,7 @@ function get_container_port {
 
   # check if a paramter is set
   if [ -z "$container_name" ]; then
+    >&2 echo "could not find volume $container_volume"
     echo "please specify container name to look for"
     return 1
   fi
@@ -278,7 +276,8 @@ function get_container_port {
     echo $ports | cut -d" " -f1
     return 0
   else
-    echo "could not find ports for container $container_name"
+    >&2 echo "could not find port"
+    echo $ports
     return 1
   fi
 

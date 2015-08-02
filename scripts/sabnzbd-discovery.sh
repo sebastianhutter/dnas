@@ -55,9 +55,18 @@ if [ "$cmd" = 'start' ]; then
   # now get the couchpotato api key, username and password and store them in the runtime part
   # those values will be used by other containers to autoconfigure
   echo set sabnzbd api_key, username and password
-  etcdctl set $db_runtime/api_key "$(crudini --get `etcdctl get $db_runtime/config` misc api_key)" > /dev/null
-  etcdctl set $db_runtime/username "$(crudini --get `etcdctl get $db_runtime/config` misc username)" > /dev/null
-  etcdctl set $db_runtime/password "$(crudini --get `etcdctl get $db_runtime/config` misc password)" > /dev/null
+  # create a temporary config file and make it parseable for crudini
+  temporary_service_configuration_path=`etcdctl get $db_runtime/config`
+  temporary_service_configuration_path=${temporary_service_configuration_path%/*}
+  temporary_service_configuration=$(mktemp -p $temporary_service_configuration_path)
+  cat `etcdctl get $db_runtime/config` | sed -e 's/\[\[/[-----/g' -e 's/\]\]/-----]/g' > $temporary_service_configuration
+
+  etcdctl set $db_runtime/api_key "$(crudini --get $temporary_service_configuration misc api_key)" > /dev/null
+  etcdctl set $db_runtime/username "$(crudini --get $temporary_service_configuration misc username)" > /dev/null
+  etcdctl set $db_runtime/password "$(crudini --get $temporary_service_configuration misc password)" > /dev/null
+
+  # now delete the temporary configuration again
+  rm -f $temporary_service_configuration
 
   # initialise the custom configuration of the service
   echo create config key
