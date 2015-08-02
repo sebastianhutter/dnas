@@ -119,6 +119,51 @@ function copy_service_configuration {
   return 0
 }
 
+function set_db_customconf_value {
+  # this function sets values in the custom conf from a service
+
+  # the function takes 4 parameters
+  # 1 = the path to the custom config in etcd
+  # 2 = the section (dir)
+  # 3 = the key to set
+  # 4 = the value of the key
+
+  # if no key and value is given the function will create an empty
+  # directory in etcd
+
+  # if no value is given the function will create an empty value
+
+  # if no section is given but a key it will create the key in the custom
+  # config root
+
+  # check if a paramter is set
+  db_custom_config=$1
+  if [ -z "$db_custom_config" ]; then
+    >&2 echo "please specify the etcd path for the custom config"
+    return 1
+  fi
+
+  section=$2
+  key=$3
+  value=$4
+
+  # check if the key is empty
+  if [[ -z "$key"  ]]; then
+    # no key and value given
+    # create an empty directory for $section
+    etcdctl mkdir "$db_custom_config/$section" > /dev/null
+  else
+    # when the key isnt empty check if the section is empty
+    if [[ -z "$section" ]]; then
+      # if the section is empty the key will be created in the root
+      etcdctl set "$db_custom_config/$key" "$value" > /dev/null
+    else
+      # if the section is given the key will be set beneath the section
+      etcdctl set "$db_custom_config/$section/$key" "$value" > /dev/null
+    fi
+  fi
+  return 0
+}
 
 function read_db_customconf_values {
   # the etcd database also holds some custom configuration values which allows overwriting
@@ -131,6 +176,9 @@ function read_db_customconf_values {
   # which translates to the ini format:
   # [section]
   # parameter = value
+
+  # sabnzbd uses section headers in two levels.
+  # this
 
   # this function reads the custom configuration and converts it to an ini file
   # which can be used to merge into the current configuration of the service
@@ -146,15 +194,37 @@ function read_db_customconf_values {
   fi
 
   ini=''
-  for section in `etcdctl ls $db_custom_config`
+  #for section in `etcdctl ls $db_custom_config`
+  #do
+  #  # extract the section name from the full etcd path
+  #  ini=$ini"[${section:${#db_custom_config}+1}]\n"
+  #  for parameter in `etcdctl ls $section`
+  #  do
+  #    ini=$ini"${parameter:${#section}+1} = `etcdctl get $parameter`\n"
+  #  done
+  #  ini=$ini"\n"
+  #done
+
+  for line in `etcdctl ls -p --recursive $db_custom_config`
   do
-    # extract the section name from the full etcd path
-    ini=$ini"[${section:${#db_custom_config}+1}]\n"
-    for parameter in `etcdctl ls $section`
-    do
-      ini=$ini"${parameter:${#section}+1} = `etcdctl get $parameter`\n"
-    done
-    ini=$ini"\n"
+    # strip the leading db path
+    content=${line:${#db_custom_config}}
+    # if the line ends with a / its a section header - this means no parameter and no value
+    if [[ "${content:(-1)}" = "/" ]]; then
+      # strip the trailing slash
+      content=${content%/*}
+      # if we find something like ]/ in the string we need to strip everything before the /
+      # this is will be a subdirectory
+      content=${content##*]/}
+      # add the section header to the custom ini configuration
+      ini=$ini"$content\n"
+    else
+      # if the line is not a directory it is a key value pair
+      # frist completely strip the path to the key
+      content=${content##*]/}
+      # now set the key value pair
+      ini=$ini"${content##*]/} = `etcdctl get $line`\n"
+    fi
   done
   echo $ini
   return 0
@@ -251,16 +321,27 @@ function merge_configuration {
   # and which will hopefully never be used in real
 
   # replace the signs in the custom configuration variable
-  custom_configuration=`echo $custom_configuration | sed -e 's/\[\[/[-----/' -e 's/\]\]/-----]/'`
+  #custom_configuration=`echo $custom_configuration | sed -e 's/\[\[/[-----/' -e 's/\]\]/-----]/'`
   # now replace signs in the service configuration
   sed -i -e 's/\[\[/[-----/' -e 's/\]\]/-----]/' $service_configuration
 
   # now merge the custom configuration file into the service configuration
   # crudini --merge $service_configuration <(echo -e $custom_configuration)
-  crudini --merge $service_configuration < <(echo -e $custom_configuration)
+
+  # the direct input throws an error if imported into ansible
+  # to circumvent this we will create a temp file to copy the custom configuration into
+  #crudini --merge $service_configuration < <(echo -e $custom_configuration)
+
+  temporary_service_configuration=`mktemp -p ${service_configuration%/*}`
+  echo -e $custom_configuration | sed -e 's/\[\[/[-----/' -e 's/\]\]/-----]/' > $temporary_service_configuration
+
+  crudini --merge $service_configuration < $temporary_service_configuration
 
   # after the compare we rebuild the correct section headers
   sed -i -e 's/\[-----/[[/' -e 's/-----\]/]]/' $service_configuration
+
+  # and delete the temp file
+  rm -f $temporary_service_configuration
 
   if [ "$?" -eq "0" ]; then
     return 0
