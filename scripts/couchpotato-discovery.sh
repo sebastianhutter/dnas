@@ -101,8 +101,11 @@ if [ "$cmd" = 'start' ]; then
   fi
 fi
 
-if [ "$cmd" = 'stop' ]; then
-  # if stop is executed remove the running configuration of the couchpotato service
-  echo remove running configuration from etcd
-  delete_db_runtime_values $db_runtime
-fi
+# the runtime shouldnt be deleted when the container is stopped.
+# the ip, host and api information can still be used by other containers
+
+#if [ "$cmd" = 'stop' ]; then
+#  # if stop is executed remove the running configuration of the couchpotato service
+#  echo remove running configuration from etcd
+#  delete_db_runtime_values $db_runtime
+#fi

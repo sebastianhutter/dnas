@@ -6,4 +6,3 @@ After=sickbeard.service
 [Service]
 EnvironmentFile=/etc/sysconfig/dnas
 ExecStart=/bin/sh -c "while true; do $DNASSCRIPTS/sickbeard-discovery.sh start; sleep 45; done"
-ExecStop=/bin/sh -c "$DNASSCRIPTS/sickbeard-discovery.sh stop"
