@@ -24,6 +24,9 @@
         name=nzbtomedia
         system=yes
 
+    - name: set ownwership of /opt/nzbtomedia directory
+      command: chown -R nzbtomedia:nzbtomedia /opt/nzbtomedia
+
     - name: copy the entrypoint script
       copy:
         src=docker-entrypoint.sh
