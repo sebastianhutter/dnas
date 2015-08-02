@@ -1,4 +1,3 @@
-
 function set_db_runtime_container_values {
   # this function sets the runtime information for the container
   # the runtime information is the ip, mac and port of the container
@@ -187,8 +186,30 @@ function compare_configuration {
     return 1
   fi
 
-  differences=$(comm -13 <(crudini --get --format=lines $service_configuration | sort) <(echo -e $custom_configuration | crudini --get --format=lines -| sort))
+  # crudini and the iniparser python library its based on can not handle section headers like [[section]].
+  # this means we need to replace the [[ and ]] in the configuration file and the custom configuration
+  # before we can compare them
+
+  # [[ is replaced by [-----
+  # ]] is replaced by -----]
+  # this will create a section header which can be parsed by crudini
+  # and which will hopefully never be used in real
+
+  # replace the signs in the custom configuration variable
+  custom_configuration=`echo $custom_configuration | sed -e 's/\[\[/[-----/' -e 's/\]\]/-----]/'`
+
+  # now create a temporary file in the same directory as the service configuration file
+  temporary_service_configuration=`mktemp -p ${service_configuration%/*}`
+  cat $service_configuration | sed -e 's/\[\[/[-----/' -e 's/\]\]/-----]/' > $temporary_service_configuration
+
+  differences=$(comm -13 <(crudini --get --format=lines $temporary_service_configuration | sort) <(echo -e $custom_configuration | crudini --get --format=lines -| sort))
+
+  # after the compare we rebuild the correct section headers
+  # crudini add spacing between the [ ] symbols therefore the \s in the sed
+  differences=`echo $differences | sed -e 's/\[\s\?-----/[[/' -e 's/-----\s\?\]/]]/'`
+
   echo $differences
+  rm -f $temporary_service_configuration
   return 0
 }
 
@@ -220,9 +241,27 @@ function merge_configuration {
   backup="$service_configuration-`date +%Y%m%d-%s`-`cat /dev/urandom | tr -dc 'a-zA-Z' | head -c 4`"
   cp $service_configuration $backup
 
+  # crudini and the iniparser python library its based on can not handle section headers like [[section]].
+  # this means we need to replace the [[ and ]] in the configuration file and the custom configuration
+  # before we can compare them
+
+  # [[ is replaced by [-----
+  # ]] is replaced by -----]
+  # this will create a section header which can be parsed by crudini
+  # and which will hopefully never be used in real
+
+  # replace the signs in the custom configuration variable
+  custom_configuration=`echo $custom_configuration | sed -e 's/\[\[/[-----/' -e 's/\]\]/-----]/'`
+  # now replace signs in the service configuration
+  sed -i -e 's/\[\[/[-----/' -e 's/\]\]/-----]/' $service_configuration
+
   # now merge the custom configuration file into the service configuration
   # crudini --merge $service_configuration <(echo -e $custom_configuration)
   crudini --merge $service_configuration < <(echo -e $custom_configuration)
+
+  # after the compare we rebuild the correct section headers
+  sed -i -e 's/\[-----/[[/' -e 's/-----\]/]]/' $service_configuration
+
   if [ "$?" -eq "0" ]; then
     return 0
   else
