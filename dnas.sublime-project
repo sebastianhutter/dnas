@@ -6,6 +6,9 @@
 		},
 		{
 			"path": "/home/shutter/Repository/ansible/roles"
+		},
+		{
+			"path": "/mnt/dnas"
 		}
 	],
 	"settings":
