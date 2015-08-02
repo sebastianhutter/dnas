@@ -34,6 +34,47 @@ sabnzbd_port: 8085
 sickbeard_port: 8081
 couchpotato_port: 5050
 
+
+#####
+# default configuration for the containers
+#####
+
+# the following variables store a default configuration
+# for the different containers which will be copied to their etcd
+# config folder
+
+sabnzbd_config:
+  - {section: "misc", key: "download_dir", value: "/Transfer/sabnzbd/incomplete/incomplete"}
+  - {section: "misc", key: "complete_dir", value: "/Transfer/sabnzbd/incomplete"}
+  - {section: "misc", key: "safe_postproc", value: "0"}
+  - {section: "misc", key: "par2_multicore", value: "0"}
+  - {section: "misc", key: "script_dir:", value: "/opt/nzbtomedia"}
+  - {section: "misc", key: "empty_postproc", value: "1"}
+  - {section: "servers", key: "", value: ""} # this line will create the section [servers]
+  - {section: "categories", key: "", value: ""}
+  - {section: "[*]", key: "", value: ""}
+  - {section: "[*]", key: "priority", value: "0"}
+  - {section: "[*]", key: "pp", value: "3"}
+  - {section: "[*]", key: "name", value: "*"}
+  - {section: "[*]", key: "script", value: "None"}
+  - {section: "[*]", key: "newzbin", value: ""}
+  - {section: "[*]", key: "dir", value: ""}
+  - {section: "[movies]", key: "priority", value: "-100"}
+  - {section: "[movies]", key: "pp", value: ""}
+  - {section: "[movies]", key: "name", value: "movies"}
+  - {section: "[movies]", key: "script", value: "nzbToCouchPotato.py"}
+  - {section: "[movies]", key: "newzbin", value: ""}
+  - {section: "[movies]", key: "dir", value: "movies"}
+  - {section: "[tv]", key: "priority", value: "-100"}
+  - {section: "[tv]", key: "pp", value: ""}
+  - {section: "[tv]", key: "name", value: "tv"}
+  - {section: "[tv]", key: "script", value: "nzbToSickBeard.py"}
+  - {section: "[tv]", key: "newzbin", value: ""}
+  - {section: "[tv]", key: "dir", value: "tv"}
+
+
+
+
 #####
 # rssdler service
 #####
