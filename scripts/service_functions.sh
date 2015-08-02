@@ -266,12 +266,13 @@ function compare_configuration {
   # and which will hopefully never be used in real
 
   # replace the signs in the custom configuration variable
-  custom_configuration=`echo $custom_configuration | sed -e 's/\[\[/[-----/' -e 's/\]\]/-----]/'`
+  custom_configuration=`echo $custom_configuration | sed -e 's/\[\[/[-----/g' -e 's/\]\]/-----]/g'`
 
   # now create a temporary file in the same directory as the service configuration file
   temporary_service_configuration=`mktemp -p ${service_configuration%/*}`
-  cat $service_configuration | sed -e 's/\[\[/[-----/' -e 's/\]\]/-----]/' > $temporary_service_configuration
+  cat $service_configuration | sed -e 's/\[\[/[-----/g' -e 's/\]\]/-----]/g' > $temporary_service_configuration
 
+  # get the differences via crudini
   differences=$(comm -13 <(crudini --get --format=lines $temporary_service_configuration | sort) <(echo -e $custom_configuration | crudini --get --format=lines -| sort))
 
   # after the compare we rebuild the correct section headers
