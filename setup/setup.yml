@@ -184,7 +184,7 @@
     - name: clone jshon to parse jsson output in bash
       git:
         repo={{jshon_download}}
-        dest=/tmp/jshon
+        dest=/opt/jshon
       register: update
 
     - name: install jansson devel libraries
