@@ -197,11 +197,11 @@
       when: update.changed
 
     - name: compile jshon
-      command: make chdir=/tmp/jshon
+      command: make chdir=/opt/jshon
       when: update.changed
 
     - name: install jshon
-      command: make install chdir=/tmp/jshon
+      command: make install chdir=/opt/jshon
       when: update.changed
 
     - name: remove jshon build dependencies
