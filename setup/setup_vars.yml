@@ -50,7 +50,7 @@ sabnzbd_config:
   - {section: "[misc]", key: "complete_dir", value: "/Transfer/sabnzbd/complete"}
   - {section: "[misc]", key: "safe_postproc", value: "0"}
   - {section: "[misc]", key: "par2_multicore", value: "0"}
-  - {section: "[misc]", key: "script_dir:", value: "/opt/nzbtomedia"}
+  - {section: "[misc]", key: "script_dir", value: "/opt/nzbtomedia"}
   - {section: "[misc]", key: "empty_postproc", value: "1"}
   - {section: "[servers]", key: "", value: ""} # this line will create the section [servers]
   - {section: "[categories]/[[*]]", key: "priority", value: "0"}
