@@ -23,9 +23,17 @@ db_runtime=$db_root/run
 db_custom_config=$db_root/config
 
 # variables for other services
-#sabnzbd_ip=/services/sabnzbd/run/ip
-#sabnzbd_port=/services/sabnzbd/run/port
-#sabnzbd_apikey=/services/sabnzbd/run/api_key
+sabnzbd_ip=/services/sabnzbd/run/ip
+sabnzbd_port=/services/sabnzbd/run/port
+sabnzbd_apikey=/services/sabnzbd/run/api_key
+
+couchpotato_ip=/services/couchpotato/run/ip
+couchpotato_port=/services/couchpotato/run/port
+couchpotato_apikey=/services/couchpotato/run/api_key
+
+sickbeard_ip=/services/sickbeard/run/ip
+sickbeard_port=/services/sickbeard/run/port
+sickbeard_apikey=/servuces/sickbeard/run/api_key
 
 #######
 # main
@@ -65,11 +73,25 @@ if [ "$cmd" = 'start' ]; then
   # it should be added to the etcd configuration for the service so the configuration
   # file does not need to be changed all the time
   #
-  #echo copy values from other services to the custom configuration
-  #echo copy sabnzbd host and api key
-  #copy_service_configuration $sabnzbd_ip $db_custom_config/sabnzbd/host
-  #copy_service_configuration $sabnzbd_port $db_custom_config/sabnzbd/host append :
-  #copy_service_configuration $sabnzbd_apikey $db_custom_config/sabnzbd/api_key
+
+  echo copy sabnzbd information
+  copy_service_configuration $sabnzbd_ip $db_custom_config/[Nzb]/sabnzbd_host
+  copy_service_configuration $sabnzbd_port $db_custom_config/[Nzb]/sabnzbd_port
+  copy_service_configuration $sabnzbd_apikey $db_custom_config/[Nzb]/sabnzbd_apikey
+
+  echo copy couchpotato information
+  copy_service_configuration $couchpotato_ip $db_custom_config/[CouchPotato]/[[movie]]/host
+  copy_service_configuration $couchpotato_port $db_custom_config/[CouchPotato]/[[movie]]/port
+  copy_service_configuration $couchpotato_apikey $db_custom_config/[CouchPotato]/[[movie]]/apikey
+  echo enable nzbtomedia for CouchPotato
+  etcdctl set $db_custom_config/[CouchPotato]/[[movie]]/enabled 1
+
+  echo copy sickbeard information
+  copy_service_configuration $sickbeard_ip $db_custom_config/[SickBeard]/[[tv]]/host
+  copy_service_configuration $sickbeard_port $db_custom_config/[SickBeard]/[[tv]]/port
+  #copy_service_configuration $sickbeard_apikey $db_custom_config/[SickBeard]/[[tv]]/apikey
+  echo enable nzbtomedia for SickBeard
+  etcdctl set $db_custom_config/[SickBeard]/[[tv]]/enabled 1
 
 
   # read the custom configuration of the service

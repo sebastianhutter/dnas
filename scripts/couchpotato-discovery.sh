@@ -73,9 +73,9 @@ if [ "$cmd" = 'start' ]; then
   #
   echo copy values from other services to the custom configuration
   echo copy sabnzbd host and api key
-  copy_service_configuration $sabnzbd_ip $db_custom_config/sabnzbd/host
-  copy_service_configuration $sabnzbd_port $db_custom_config/sabnzbd/host append :
-  copy_service_configuration $sabnzbd_apikey $db_custom_config/sabnzbd/api_key
+  copy_service_configuration $sabnzbd_ip $db_custom_config/[sabnzbd]/host
+  copy_service_configuration $sabnzbd_port $db_custom_config/[sabnzbd]/host append :
+  copy_service_configuration $sabnzbd_apikey $db_custom_config/[sabnzbd]/api_key
 
 
   # read the custom configuration of the service

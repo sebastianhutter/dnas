@@ -216,6 +216,9 @@ function read_db_customconf_values {
       # if we find something like ]/ in the string we need to strip everything before the /
       # this is will be a subdirectory
       content=${content##*]/}
+      # strip any leading /
+      content=${content#/}
+
       # add the section header to the custom ini configuration
       ini=$ini"$content\n"
     else

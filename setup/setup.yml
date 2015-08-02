@@ -266,7 +266,7 @@
       with_items: "{{sickbeard_config}}"
 
     - name: setup default config for couchpotato
-      shell: source /etc/profile.d/etcd.sh && source {{dnas_scripts}}/service_functions.sh && set_db_customconf_value /services/ouchpotato/config "{{item.section}}" "{{item.key}}" "{{item.value}}"
+      shell: source /etc/profile.d/etcd.sh && source {{dnas_scripts}}/service_functions.sh && set_db_customconf_value /services/couchpotato/config "{{item.section}}" "{{item.key}}" "{{item.value}}"
       with_items: "{{couchpotato_config}}"
 
     - name: setup default config for nzbtomedia
