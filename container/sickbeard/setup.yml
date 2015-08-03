@@ -39,6 +39,9 @@
   command: systemctl daemon-reload
   when: systemd.changed
 
+- name: pull docker container
+  command: docker pull sebastianhutter/sickbeard
+
 - name: enable sickbeard services
   service:
     name={{item}}

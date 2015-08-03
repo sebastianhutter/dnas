@@ -39,6 +39,9 @@
   command: systemctl daemon-reload
   when: systemd.changed
 
+- name: pull docker container
+  command: docker pull sebastianhutter/couchpotato
+
 - name: enable couchpotato services
   service:
     name={{item}}

@@ -47,6 +47,9 @@
   when: systemd.changed
 
 
+- name: pull docker container
+  command: docker pull sebastianhutter/rssdler
+
 - name: enable rssdler services
   service:
     name={{item}}
