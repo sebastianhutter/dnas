@@ -9,6 +9,11 @@ param="$@"
 # rssdler script
 if [ "$cmd" = 'rssdler' ]; then
 
+    # if the daemon pid exists remove it
+    if [ -f /var/lib/rssdler/workingdir/daemon.info ]; then
+      rm -f /var/lib/rssdler/workingdir/daemon.info
+    fi
+
     # if the configuration file does not exist copy it
     if [ ! -f /var/lib/rssdler/rssdler.conf ]; then
       cp /opt/rssdler.conf /var/lib/rssdler/rssdler.conf

@@ -5,7 +5,7 @@ Requires=docker.service
 
 [Service]
 EnvironmentFile=/etc/sysconfig/dnas
-ExecStartPre=-/usr/bin/rm -f `ectdctl get /services/rssdler/run/pid`
+#ExecStartPre=-/usr/bin/rm -f `ectdctl get /services/rssdler/run/pid`
 ExecStartPre=-/usr/bin/docker kill rssdler
 # we need to remove the file daemon.info or else a restart of the client
 # will fail. in a proper shutdown this file should already be removed by the discovery service
