@@ -2,6 +2,11 @@
 # the query is handled over the local unix socket
 # the script the function uses must be run as root!
 function docker_get_json {
+  # remove potential set variables
+  unset search
+  unset data
+  unset temp
+
   # first parameter is the search string
   search=$1
 
@@ -25,6 +30,7 @@ function docker_get_json {
   # the sed command removes the empty line after the meta data
   # and the output is then stored into the data array
   data=($(echo -e "GET $search HTTP/1.1\r\n" | socat unix-connect:/var/run/docker.sock STDIO | sed '/^\s*$/d'))
+  unset IFS
   # remove the trailing line feed from all array values
   for i in "${!data[@]}"
   do
@@ -61,11 +67,10 @@ function docker_get_json {
     echo ${data[JSON]}
     return 0
   else
-    echo "could not retrieve data from docker api - ${data[STATUS]}"
-    >&2 return 1
+    >&2 echo "could not retrieve data from docker api - ${data[STATUS]}"
+    return 1
   fi
   # revert the IFS change
-  unset IFS
 }
 
 
@@ -75,6 +80,14 @@ function get_container_id {
   # and checks against the given name of the container
   # the sed expression replaces / with \/ as they are
   # escaped in the json
+
+  # remove potential variables
+  unset containter_name
+  unset container_name_count
+  unset containers
+  unset container_count
+  unset id
+
   container_name=$(echo $1 | sed -e 's/\//\\\//g')
 
   # check if a paramter is set
@@ -84,7 +97,7 @@ function get_container_id {
   fi
 
   # get all running containers
-  containers=`docker_get_json "/containers/json?all=true"`
+  containers=`docker_get_json "/containers/json?all=true"` || return 1
 
   # return the elements in the returned array
   container_count=`echo $containers | jshon -l`
@@ -114,6 +127,11 @@ function get_container_id {
 }
 
 function get_container_data_json {
+  # unset potential set variables
+  unset container_id
+  unset container_data
+
+
   # this functions retrieves all information from a container
   # by its id (or name)
   container_id=$1
@@ -124,8 +142,7 @@ function get_container_data_json {
     return 1
   fi
 
-  container_data=`docker_get_json "/containers/$container_id/json"`
-
+  container_data=`docker_get_json "/containers/$container_id/json"` || return 1
 
   # check if we received container data
   if [ -z "$container_data" ]; then
@@ -138,6 +155,14 @@ function get_container_data_json {
 }
 
 function get_container_value {
+  # delete potential set variables
+  unset container_name
+  unset container_value
+  unset id
+  unset data
+  unset searchstring
+  unset value
+
   # this function returns the specified value for a container
   # the first parameter the function takes is the name or id of the container
   # the second paramter is the value to look for
@@ -155,15 +180,19 @@ function get_container_value {
     return 1
   fi
 
-  id=`get_container_id $container_name`
-  data=`get_container_data_json $id`
+  id=`get_container_id $container_name` || return 1
+  data=`get_container_data_json $id` || return 1
 
-  # read in the values (multilevel separated with .)
+  # read in the values
+  # a value in a docker container is represented like 'NetworkSettings.IPaddress'
+  # the jshon parser wants to have each value by itself separated by -e
+  # '-e Networksettings -e IPAddress'. To make this happen we split the searchstring into an array
+  # and create it new with the full jshon cmd
   IFS='.'
   read -a values <<< "$container_value"
   unset IFS
 
-  searchstring='jshon'
+  searchstring='jshon -Q'
   for i in "${values[@]}"
   do
     searchstring="$searchstring -e $i"
@@ -174,14 +203,18 @@ function get_container_value {
   if [ -z "$value" ]; then
     >&2 echo "could not find the specified value $container_value in the container $container_name"
     return 1
+  else
+    echo $value
+    return 0
   fi
-
-  echo $value
-  return 0
 
 }
 
 function get_container_ip {
+  # delete potential set variables
+  unset containter_name
+  unset container_ip
+
   # this function gets the ip address from a running container
   # it takes the name of the container as parameter
   container_name=$1
@@ -191,18 +224,22 @@ function get_container_ip {
     return 1
   fi
 
-  container_ip=$(get_container_value $container_name NetworkSettings.IPAddress | sed 's/"//g')
-  echo $container_ip
+  container_ip=$(get_container_value $container_name NetworkSettings.IPAddress | sed 's/"//g') || return 1
 
   if [ -z "$container_ip" ]; then
     >&2 echo "could not find an ip address for container $container_name"
     return 1
   else
+    echo $container_ip
     return 0
   fi
 }
 
 function get_container_mac {
+  # delete potential set variables
+  unset containter_name
+  unset mac
+
   # this function gets the ip address from a running container
   # it takes the name of the container as parameter
   container_name=$1
@@ -213,18 +250,24 @@ function get_container_mac {
     return 1
   fi
 
-  container_mac=$(get_container_value $container_name NetworkSettings.MacAddress | sed 's/"//g')
-  echo $container_mac
+  container_mac=$(get_container_value $container_name NetworkSettings.MacAddress | sed 's/"//g') || return 1
 
   if [ -z "$container_mac" ]; then
-    >&2 echo "could not find an ip address for container $container_name"
+    >&2 echo "could not find a mac address for container $container_name"
     return 1
   else
+    echo $container_mac
     return 0
   fi
 }
 
 function get_container_volume_path {
+  # delete potential set variables
+  unset containter_name
+  unset container_volume
+  unset volumes
+  unset volume
+
   # this function gets the physical path of a volume exposed by the container
   # it takes two paramters. the first parameter is the name or id of the container
   # the second is the exposed volume to look for
@@ -242,18 +285,32 @@ function get_container_volume_path {
     return 1
   fi
 
-  volume=$(get_container_value $container_name Volumes | jshon -e $container_volume -u)
-  if [ $? -eq 0 ]; then
+  # get all volumes assigned to the container
+  volumes=`get_container_value $container_name Volumes` || return 1
+  # check if we received any volume at all
+  if [[ `echo $volumes | jshon -l` -eq 0 ]]; then
+      >&2 echo "no volumes are assigned to container $container_name"
+      return 1
+  fi
+
+  # now try to find the volume we are looking for
+  volume=`echo $volumes | jshon -Q -e $container_volume -u`
+
+  if [ -z "$volume" ]; then
+    >&2 echo "could not find volume $container_volume in container $container_name"
+    return 1
+  else
     echo $volume
     return 0
-  else
-    >&2 echo "could not find volume $container_volume"
-    echo $volume
-    return 1
   fi
 }
 
 function get_container_port {
+  # delete potential set variables
+  unset container_name
+  unset assigned_ports
+  unset port
+
   # this function retrieves the first exposed port of the container
   # for now we assume that the first port number of the device is the
   # port used by users and services to communicate to the system
@@ -266,22 +323,28 @@ function get_container_port {
 
   # check if a paramter is set
   if [ -z "$container_name" ]; then
-    >&2 echo "could not find volume $container_volume"
-    echo "please specify container name to look for"
+    >&2 echo "please specify container name to look for"
     return 1
   fi
 
-  ports=$(get_container_value $container_name NetworkSettings.Ports | jshon -a -e 0 -e HostPort -u)
-  if [ $? -eq 0 ]; then
-    echo $ports | cut -d" " -f1
-    return 0
+  # get all exposed ports of the container
+  assigned_ports=`get_container_value $container_name NetworkSettings.Ports`
+  # check if we received any ports at all
+  if [[ `echo $assigned_ports | jshon -l` -eq 0 ]]; then
+      >&2 echo "no ports are assigned to container $container_name"
+      return 1
+  fi
+
+  # now parse the returned json array and get the hostport value of the first object in the array
+  port=`echo $assigned_ports | jshon -Q -a -e 0 -e HostPort -u`
+
+  if [ -z "$port" ]; then
+    >&2 echo "could not get the first port of the container"
+    return 1
   else
-    >&2 echo "could not find port"
-    echo $ports
-    return 1
+    echo $port | cut -d" " -f1
+    return 0
   fi
-
-
 }
 
 
