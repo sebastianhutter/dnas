@@ -63,6 +63,36 @@ function set_etcd_key {
   fi
 }
 
+function check_etcd_path {
+  # this function checks if the specified etcd path exists
+
+  # the function takes one parameter
+  # 1 = the path to check
+
+  # delete potentially set variables
+  unset path
+
+  path="$1"
+  if [ -z "$path" ]; then
+    >&2 echo "please specify the path to check"
+    return 1
+  fi
+
+  # an etcdctl LS will return 0 if the path exists. it does not matter if its
+  # a directory or key
+  #etcdctl ls "$path" > /dev/null 2>&1
+  #if [ "$?" -eq 0 ]; then
+  #  return 0
+  #else
+  #  return 1
+  #fi
+  etcdctl ls "$path" > /dev/null 2>&1 || {
+    >&2 echo "could not find $path in etcd database"
+    return 1
+  }
+  return 0
+}
+
 function get_etcd_key {
   # this function looks up and returns a value of the specified key
 
