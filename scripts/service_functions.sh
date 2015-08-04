@@ -170,13 +170,6 @@ function read_db_customconf_values {
   # the etcd database also holds some custom configuration values which allows overwriting
   # the configuration file of the service without root access to the docker data contaienr
 
-  # the configuration file of the different services (couchpotato, sabnzbd, nzbtomedia, rssdler, sickbeard)
-  # are all ini files. a ini file is setup in sections [xyz], parameters and values.
-  # this setup can be build into etcd pretty easily
-  # $db_custom_config_db/section/parameter value
-  # which translates to the ini format:
-  # [section]
-  # parameter = value
 
   # sabnzbd uses section headers in two levels.
   # this
@@ -354,5 +347,233 @@ function merge_configuration {
     >&2 echo "the merge returned an error"
     return 1
   fi
+}
+
+
+
+
+
+
+
+
+
+
+function read_ini_configuration_file {
+  # this function reads in the configuration file of the services
+  # and converts it into a multiline variable
+  # it also replaces ini headers like [[section]] with [-----section-----]
+  # this is necessary for crudini to successfully parse the ini config
+
+  # the function takes one paramter
+  # 1 = the full path to the configuration file
+
+  # delete potentially set variables
+  unset file
+  unset content
+  unset line
+
+  # check if a paramter is set
+  file="$1"
+  if [ -z "$file" ]; then
+    >&2 echo "please specify the path to the configuration file"
+    return 1
+  fi
+
+  # check if the file exists
+  if [ -f "$file" ]; then
+    # read the configuration file
+    content=''
+    while IFS= read -r line
+    do
+      content="$content$line\n"
+    done < "$file"
+    # now replace the [[ and the ]]
+    content=`echo $content | sed -e 's/\[\[/[-----/g' -e 's/\]\]/-----]/g'`
+
+    # return the configuration file
+    echo $content
+    return 0
+  else
+    # if the file does not exist print error message and
+    # exit the function
+    >&2 echo "could not find the configuration file $file"
+    return 1
+  fi
+
+}
+
+function read_ini_configuration_database {
+  # this function read all custom config values from the etcd database
+  # and converts them to a valid ini file
+  # it also replaces ini headers like [[section]] with [-----section-----]
+  # this is necessary for crudini to successfully parse the ini config
+
+  # the configuration file of the different services (couchpotato, sabnzbd, nzbtomedia, rssdler, sickbeard)
+  # are all ini files. a ini file is setup in sections [xyz], parameters and values.
+  # this setup can be build into etcd pretty easily
+  # $db_custom_config_db/section/parameter value
+  # which translates to the ini format:
+  # [section]
+  # parameter = value
+  unset db_directory
+  unset line
+  unset ini
+  unset content
+
+  db_directory=$1
+  if [ -z "$db_directory" ]; then
+    >&2 echo "please specify the path to the etcd directory"
+    return 1
+  fi
+
+  # check if the configuration path exists
+  check_etcd_path "$db_directory" || return 1
+
+  # if the path exists we can read the values in
+  ini=''
+  # loop over all keys and directories in the specified path recursively
+  for line in `etcdctl ls -p --recursive $db_directory 2> /dev/null`
+  do
+    # strip the leading db path
+    content=${line:${#db_directory}}
+    # if the line ends with a / its a section header - this means no parameter and no value
+    if [[ "${content:(-1)}" = "/" ]]; then
+      # strip the trailing slash
+      content=${content%/*}
+      # if we find something like ]/ in the string we need to strip everything before the /
+      # this is will be a subdirectory
+      content=${content##*]/}
+      # strip any leading /
+      content=${content#/}
+
+      # add the section header to the custom ini configuration
+      ini=$ini"$content\n"
+    else
+      # if the line is not a directory it is a key value pair
+      # frist completely strip the path to the key
+      content=${content##*]/}
+      # now set the key value pair
+      ini=$ini"${content##*]/} = `etcdctl get $line`\n"
+    fi
+  done
+  # now replace the [[ and the ]]
+  ini=`echo $ini | sed -e 's/\[\[/[-----/g' -e 's/\]\]/-----]/g'`
+
+  # return the compiled ini file
+  echo $ini
+  return 0
+}
+
+function compare_ini_configuration {
+  # this function compares the custom configuration with the configuration file used by the service
+  # the ini files are convered to lines with crudini and then compared against each other with comm
+  # a merge is necessary if one of the following conditions is met
+  # 1. a line is added to the custom configuration which does not exist in the configuration used by the service
+  # 2. a value of a parameter is different in the custom configuration then in the configuration used by the service
+
+  # the function takes two parameters
+  # 1 = the configuration file content returned by the function read_ini_configuration_file
+  # 2 = the custom configruation returned by the function read_ini_configuration_database
+
+  # the function returns a 0 if there are no differences
+  # the function returns a 1 if there are differences
+
+  # if the function only receives one parameter the configuration file wasnt found
+  # and returned an empty ini set
+  # in this case we will also return a 1 (differences)
+  # its possible that the configuration file doesnt exist at all and needs to be
+  # completely written from scratch
+
+  # if both given parameters are empty nothing needs to be changed anyway
+
+  # delete potentially set variables
+  unset service_configuration
+  unset custom_configuration
+  unset differences
+
+  # check if a paramter is set
+  service_configuration="$1"
+
+  # check if a paramter is set
+  custom_configuration="$2"
+
+
+  # compare the differences in the ini file
+  # the comm command compares two outputs.
+  # the -1 tells it to only output unique lines
+  # the -3 tells it to only output lines from the second file,
+  # which is the custom configuration
+  # the result is that we only lines from the custom configuration
+  # which differ from the configuration file used by the service
+
+  differences=`comm -13 <(echo -e "$service_configuration" | crudini --get --format=lines - | sort) \
+    <(echo -e "$custom_configuration" | crudini --get --format=lines -| sort)`
+
+  # check if there are no differences
+  if [ -z "$differences" ]; then
+    # if there are no differences return 0
+    return 0
+  else
+    # if there are differences return a 1
+    return 1
+  fi
+}
+
+function merge_ini_configuration {
+  # this function merges the custom configuration with the configurration file.
+
+  # the fucntion takes two parameters
+  # 1 = the configuration file content returned by the function read_ini_configuration_file
+  # 2 = the custom configruation returned by the function read_ini_configuration_database
+
+  # the function will return the merged ini configuration
+
+  # the function takes two parameters
+  # 1 = the configuration file content returned by the function read_ini_configuration_file
+  # 2 = the custom configruation returned by the function read_ini_configuration_database
+
+  ####
+  ####
+  ####
+  # unfortunately i couldnt make the crudini merge process work
+  # with only variables. i need to write the merge output to a file
+  # and then return the content of the temporary file
+
+  # delete potentially set variables
+  unset service_configuration
+  unset custom_configuration
+  unset temporary_file
+  unset merged_configuration
+
+  # check if a paramter is set
+  service_configuration="$1"
+  # the first parameter can be empty. this will happen if the configuration file
+  # couldnt be found or is empty
+
+  # check if a paramter is set
+  custom_configuration="$2"
+  if [ -z "$custom_configuration" ]; then
+    # the second parameter can not be empty or crudini will throw an error.
+    # and this shouldnt happen because the function is only used if the service
+    # detects configuration changes
+    >&2 echo "no changed configuration detected. not merging"
+    return 1
+  fi
+
+  # create a temporary file to store the merged ini configurration
+  temporary_file=`mktemp`
+  chmod 700 "$temporary_file"
+  # push the ini file configuration to the temp file
+  echo -e "$service_configuration" > "$temporary_file"
+  # merge the ini file
+  crudini --merge "$temporary_file" <<< "echo -e $custom_configuration"
+  # read in the temporary file
+  merged_configuration=`read_ini_configuration_file "$temporary_file"`
+
+  # delete the temporary file
+  rm -f "$$temporary_file"
+  # return the merged configuration
+  echo $merged_configuration
+  return 0
 }
 
