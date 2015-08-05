@@ -2,10 +2,10 @@
 	"folders":
 	[
 		{
-			"path": "/home/shutter/Repository/dnas"
+			"path": "."
 		},
 		{
-			"path": "/home/shutter/Repository/ansible/roles"
+			"path": "../ansible/roles"
 		},
 		{
 			"path": "/mnt/dnas"
