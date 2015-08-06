@@ -542,7 +542,8 @@ function merge_ini_configuration {
   # delete potentially set variables
   unset service_configuration
   unset custom_configuration
-  unset temporary_file
+  unset temporary_file_1
+  unset temporary_file_2
   unset merged_configuration
 
   # check if a paramter is set
@@ -561,17 +562,22 @@ function merge_ini_configuration {
   fi
 
   # create a temporary file to store the merged ini configurration
-  temporary_file=`mktemp`
-  chmod 700 "$temporary_file"
+  temporary_file_1=`mktemp`
+  temporary_file_2=`mktemp`
+
+  chmod 700 "$temporary_file_1"
+  chmod 700 "$temporary_file_2"
   # push the ini file configuration to the temp file
-  echo -e "$service_configuration" > "$temporary_file"
+  echo -e "$service_configuration" > "$temporary_file_1"
+  echo -e "$custom_configuration" > "$temporary_file_2"
   # merge the ini file
-  crudini --merge "$temporary_file" <<< "echo -e $custom_configuration"
+  crudini --merge "$temporary_file_1" < "$temporary_file_2"
   # read in the temporary file
-  merged_configuration=`read_ini_configuration_file "$temporary_file"`
+  merged_configuration=`read_ini_configuration_file "$temporary_file_1"`
 
   # delete the temporary file
-  rm -f "$$temporary_file"
+  rm -f "$temporary_file_1"
+  rm -rf "$temporary_file_2"
   # return the merged configuration
   echo $merged_configuration
   return 0
@@ -595,6 +601,13 @@ function write_ini_configuration {
     return 1
   fi
 
+  # check if a paramter is set
+  ini="$2"
+  if [ -z "$ini" ]; then
+    >&2 echo "no ini configuration specified"
+    return 1
+  fi
+
   # check if the file exists
   if [ -f "$file" ]; then
     # check if we have write permission on the file
@@ -611,6 +624,12 @@ function write_ini_configuration {
 
   # replace [----- and  ------] with [[  and  ]]
   ini=`echo "$ini" | sed -e 's/\[-----/[[/g' -e 's/-----\]/]]/g'`
+
+  # first create a backup of the service configuration file
+  # the backup file name consists of the current date + seconds since 1970 and a 4 letter random string
+  # to circumvent an filename overlap
+  backup="$file-`date +%Y%m%d-%s`-`cat /dev/urandom | tr -dc 'a-zA-Z' | head -c 4`"
+  cp $file $backup
 
   # write ini file
   echo -e "$ini" > "$file"
