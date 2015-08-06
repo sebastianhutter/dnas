@@ -628,7 +628,7 @@ function write_ini_configuration {
   # first create a backup of the service configuration file
   # the backup file name consists of the current date + seconds since 1970 and a 4 letter random string
   # to circumvent an filename overlap
-  backup="$file-`date +%Y%m%d-%s`-`cat /dev/urandom | tr -dc 'a-zA-Z' | head -c 4`"
+  backup="$file-`date +%Y%m%d-%s`"
   cp $file $backup
 
   # write ini file
