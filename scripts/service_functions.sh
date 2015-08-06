@@ -577,3 +577,43 @@ function merge_ini_configuration {
   return 0
 }
 
+function write_ini_configuration {
+  # this function writes the ini configuration back to a file
+
+  # the function takes two parameters
+  # 1 = the path to the file  
+  # 2 = the merged configuration as returned by the function read_ini_configuration_database
+
+  # delete variables
+  unset file
+  unset ini
+
+  # check if a paramter is set
+  file="$1"
+  if [ -z "$file" ]; then
+    >&2 echo "no path to ini file specified"
+    return 1
+  fi
+
+  # check if the file exists
+  if [ -f "$file" ]; then
+    # check if we have write permission on the file
+    if [ ! -w "$file" ]; then
+      >&2 echo "not able to write to ini file $file"
+      return 1
+    fi
+  else
+    # if the file doesnt exist create an empty version
+    touch "$file" || {
+      >&2 echo "could not create ini file $file"
+    }
+  fi
+
+  # replace [----- and  ------] with [[  and  ]]
+  ini=`echo "$ini" | sed -e 's/\[-----/[[/g' -e 's/-----\]/]]/g'`
+
+  # write ini file
+  echo -e "$ini" > "$file"
+  return 0
+}
+
