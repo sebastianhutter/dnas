@@ -15,8 +15,8 @@
 
 
 
-#dnas_base: /dnas
-dnas_base: /home/shutter/Repository/dnas
+dnas_base: /dnas
+#dnas_base: /home/shutter/Repository/dnas
 
 dnas_scripts: "{{dnas_base}}/scripts"
 docker_base: "{{dnas_base}}/docker"
