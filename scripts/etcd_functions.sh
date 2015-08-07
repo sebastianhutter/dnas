@@ -40,6 +40,10 @@ function set_etcd_key {
   # 2 = the value to set
   # if no value is set an empty value "" is set for the key
 
+  # the function uses the etcd api.
+  # the etcdctl set command can not handle values with a leading -
+  # (aka negative ones)
+
   # delete poptentially set variables
   unset key
   unset value
@@ -52,8 +56,12 @@ function set_etcd_key {
     return 1
   fi
 
+  # replace [ and ] with \[ and \] <- necessray for curl to work
+  key=`echo $key | sed -e 's/\[/\\\[/g' -e 's/\]/\\\]/g'`
+
   # now create the key with the value
-  etcdctl set "$key" "$value" > /dev/null 2>&1
+  #etcdctl set "$key" "$value" > /dev/null 2>&1
+  curl --silent -L "http://127.0.0.1:4001/v2/keys$key" -XPUT -d value="$value" > /dev/null
 
   if [ "$?" -eq 0 ]; then
     return 0
@@ -200,3 +208,46 @@ function copy_etcd_key {
   return 0
 }
 
+function set_etcd {
+  # this function either creates a directory or creates a key and sets a value.
+  # depending on the given parameters for the function
+
+  # the function takes up to three parameters
+  # 1 = the path to the directory or key to create
+  # 2 = specifier if the first parameter describes a directory or key (either 'dir' or 'key')
+  # 3 = the value of the key
+
+  # delete some variables
+  unset etcd_path
+  unset identified
+  unset etcd_value
+
+  # now check if the path is empty
+  etcd_path="$1"
+  if [ -z "$etcd_path" ]; then
+    >&2 "no etcd path to dir or key specified"
+    return 1
+  fi
+
+  identified="$2"
+  etcd_value="$3"
+
+  echo $1/$2 $3
+
+  # now check if we need to set a directory or a key
+   case "$identified" in
+    'dir')
+      set_etcd_directory "$etcd_path"
+      return $?
+      ;;
+    'key')
+      set_etcd_key "$etcd_path" "$etcd_value"
+      return $?
+      ;;
+    *)
+      >&2 echo "unknown identifier - use dir or key"
+      return 1
+      ;;
+  esac
+
+}
