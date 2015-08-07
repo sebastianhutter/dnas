@@ -73,12 +73,12 @@ if [ "$cmd" = 'start' ]; then
 
     echo setting container ip
     set_etcd_key "$db_runtime/ip" "`get_container_ip $container`"
-    echo container ip is \'$ip\'
+    echo container ip is \'`get_container_ip $container`p\'
     echo setting container mac
     set_etcd_key "$db_runtime/mac" "`get_container_mac $container`"
-    echo container mac is \'$mac\'
+    echo container mac is \'`get_container_mac $container`\'
     echo setting container published port
-    echo container published port is \'$port\'
+    echo container published port is \'`get_container_port $container`\'
     set_etcd_key "$db_runtime/port" "`get_container_port $container`"
 
      # if the etcd directory for the custom configuration does not exist create
@@ -132,9 +132,6 @@ if [ "$cmd" = 'start' ]; then
         write_ini_configuration "$configfile" "$merged_ini" || {
           echo could not write to config file.
         }
-
-        write_ini_configuration "$configfile.original" "$original_ini"
-        write_ini_configuration "$configfile.custom" "$custom_ini"
 
         # set the container to restart when the configuration loop
         # has finished
