@@ -42,6 +42,9 @@ if [ "$cmd" = 'start' ]; then
   unset reload
   unset reload_loop
   unset reload_wait
+  unset ip
+  unset mac
+  unset port
   unset loop_counter
   unset workingdir
   unset configfile
@@ -72,14 +75,17 @@ if [ "$cmd" = 'start' ]; then
     sleep $reload_wait
 
     echo setting container ip
-    set_etcd_key "$db_runtime/ip" "`get_container_ip $container`"
-    echo container ip is \'`get_container_ip $container`p\'
+    ip=`get_container_ip $container`
+    set_etcd_key "$db_runtime/ip" "$ip"
+    echo container ip is \'$ip\'
     echo setting container mac
-    set_etcd_key "$db_runtime/mac" "`get_container_mac $container`"
-    echo container mac is \'`get_container_mac $container`\'
+    mac=`get_container_mac $container`
+    set_etcd_key "$db_runtime/mac" "$mac"
+    echo container mac is \'$mac\'
     echo setting container published port
-    echo container published port is \'`get_container_port $container`\'
-    set_etcd_key "$db_runtime/port" "`get_container_port $container`"
+    port=`get_container_port $container`
+    echo container published port is \'$port\'
+    set_etcd_key "$db_runtime/port" "$port"
 
      # if the etcd directory for the custom configuration does not exist create
     # it now.
