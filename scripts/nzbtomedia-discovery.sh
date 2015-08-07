@@ -40,95 +40,83 @@ sickbeard_apikey=/servuces/sickbeard/run/api_key
 # main
 #######
 
-# check if the discovery service is started or stopped
 
 cmd=$1
 shift
 param="$@"
 
 if [ "$cmd" = 'start' ]; then
-  # set the reload variable to 0
-  # it determines if the container needs to be restarted - which will happen if the custom configuration changes
-  reload=0
+  unset reload
+  unset reload_loop
+  unset reload_wait
+  unset loop_counter
+  unset workingdir
+  unset configfile
+  unset custom_ini
+  unset original_ini
+  unset merged_ini
 
-  # the plexmedia server can be started by simply running the start script
-  # in the plexmedia server lib directory
-  # set the docker container run time information
-  echo setting docker container runtime information
-  set_db_runtime_container_values $container $db_runtime
-
-  # set additional runtime values for the service
-  echo set path to service configuration file
-  etcdctl set $db_runtime/workingdir `get_container_volume_path $container /opt/nzbtomedia` > /dev/null
-  etcdctl set $db_runtime/config `get_container_volume_path $container /opt/nzbtomedia`/autoProcessMedia.cfg > /dev/null
-
-  # initialise the custom configuration of the service
-  echo create config key
-  create_db_customconf $db_custom_config
-
-   # copy configuration entries from other services into
-  # the services custom configuration.
-
-  #
-  # for now I am adding the necessary configuration entries manually into this script
-  # it should be added to the etcd configuration for the service so the configuration
-  # file does not need to be changed all the time
-  #
-
-  echo copy sabnzbd information
-  copy_service_configuration $sabnzbd_ip $db_custom_config/[Nzb]/sabnzbd_host
-  copy_service_configuration $sabnzbd_port $db_custom_config/[Nzb]/sabnzbd_port
-  copy_service_configuration $sabnzbd_apikey $db_custom_config/[Nzb]/sabnzbd_apikey
-
-  echo copy couchpotato information
-  copy_service_configuration $couchpotato_ip $db_custom_config/[CouchPotato]/[[movie]]/host
-  copy_service_configuration $couchpotato_port $db_custom_config/[CouchPotato]/[[movie]]/port
-  copy_service_configuration $couchpotato_apikey $db_custom_config/[CouchPotato]/[[movie]]/apikey
-  echo enable nzbtomedia for CouchPotato
-  etcdctl set $db_custom_config/[CouchPotato]/[[movie]]/enabled 1
-
-  echo copy sickbeard information
-  copy_service_configuration $sickbeard_ip $db_custom_config/[SickBeard]/[[tv]]/host
-  copy_service_configuration $sickbeard_port $db_custom_config/[SickBeard]/[[tv]]/port
-  #copy_service_configuration $sickbeard_apikey $db_custom_config/[SickBeard]/[[tv]]/apikey
-  echo enable nzbtomedia for SickBeard
-  etcdctl set $db_custom_config/[SickBeard]/[[tv]]/enabled 1
+  echo setting container ip
+  ip=`get_container_ip $container`
+  set_etcd_key "$db_runtime/ip" "$ip"
+  echo container ip is \'$ip\'
+  echo setting container mac
+  mac=`get_container_mac $container`
+  set_etcd_key "$db_runtime/mac" "$mac"
+  echo container mac is \'$mac\'
+  echo setting container published port
+  port=`get_container_port $container`
+  echo container published port is \'$port\'
+  set_etcd_key "$db_runtime/port" "$port"
 
 
-  # read the custom configuration of the service
-  echo read custom configuration
-  custom_ini=`read_db_customconf_values $db_custom_config`
+  echo creating etcd directory \'$db_custom_config\' for custom configuration
+  set_etcd_directory $db_custom_config
 
-  # compare both configurations
-  echo compare differences between service configuration and custom configuration
-  differences=$(compare_configuration `etcdctl get $db_runtime/config` "$custom_ini")
+  echo setting $container working dir
+  set_etcd_key "$db_runtime/workingdir" "`get_container_volume_path $container /opt/nzbtomedia`"
+  workingdir=`get_etcd_key $db_runtime/workingdir`
+  if [ -z $workingdir ]; then
+    >&2 echo "could not find the working dir of the nzbtomedia service. the configuration file can not be changed"
+  else
+    echo setting $container config file
+    configfile="$workingdir/autoProcessMedia.cfg"
+    set_etcd_key "$db_runtime/config" "$configfile"
+    echo container config file is \'$configfile\'
 
-  # if no differences where detected we do not need to merge the configuration
-  # if differences where detected we need to merge the configuration
-  if [[ ! -z $differences ]]; then
-    echo merge custom configuration with service configuration
-    merge_configuration `etcdctl get $db_runtime/config` "$custom_ini"
-    #reload=1
+    echo parse config file \'$configfile\'
+    original_ini=`read_ini_configuration_file $configfile`
+
+    echo set sabnzbd information for nzbtomedia configuration file
+    copy_etcd_key "$sabnzbd_ip" "$db_custom_config/[Nzb]/sabnzbd_host"
+    copy_etcd_key "$sabnzbd_port" "$db_custom_config/[Nzb]/sabnzbd_port"
+    copy_etcd_key "$sabnzbd_apikey" "$db_custom_config/[Nzb]/sabnzbd_apikey"
+
+    echo set couchpotato information for nzbtomedia configuration file
+    copy_etcd_key "$couchpotato_ip" "$db_custom_config/[CouchPotato]/[[movie]]/host"
+    copy_etcd_key "$couchpotato_port" "$db_custom_config/[CouchPotato]/[[movie]]/port"
+    copy_etcd_key "$couchpotato_apikey" "$db_custom_config/[CouchPotato]/[[movie]]/apikey"
+    echo enable couchpotato script for movie tag
+    set_etcd_key "$db_custom_config/[CouchPotato]/[[movie]]/enabled" "1"
+
+    echo set sickbeard information for nzbtomedia configuration file
+    copy_etcd_key "$sickbeard_ip" "$db_custom_config/[SickBeard]/[[tv]]/host"
+    copy_etcd_key "$sickbeard_port" "$db_custom_config/[SickBeard]/[[tv]]/port"
+    echo enable sickbeard script for series tag
+    set_etcd_key "$db_custom_config/[SickBeard]/[[tv]]/enabled" "1"
+
+    echo parse custom configuration in etcd
+    custom_ini=`read_ini_configuration_database $db_custom_config`
+
+    echo compare ini configuration.
+    compare_ini_configuration "$original_ini" "$custom_ini" || {
+      echo differences found. merge custom configuration to configuration file
+      merged_ini=`merge_ini_configuration "$original_ini" "$custom_ini"`
+
+      echo writing configuration file
+      write_ini_configuration "$configfile" "$merged_ini" || {
+        echo could not write to config file.
+      }
+    }
   fi
-
-  # check if the service needs to be reloaded
-  #if [ $reload -eq 1 ]; then
-  #  echo reload container
-  #  systemctl restart $container
-  #fi
 fi
-
-# the runtime shouldnt be deleted when the container is stopped.
-# the ip, host and api information can still be used by other containers
-
-#if [ "$cmd" = 'stop' ]; then
-#  # if stop is executed remove the running configuration of the couchpotato service
-#  echo remove running configuration from etcd
-#  delete_db_runtime_values $db_runtime
-#fi
-
-
-
-
-
-
