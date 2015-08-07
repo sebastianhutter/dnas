@@ -15,6 +15,8 @@
   tasks:
     - name: import setup variables
       include_vars: setup_vars.yml
+      tags:
+        - always
 
 #
 # install and configure docker
@@ -258,17 +260,22 @@
 # add default service configuration to etcd
 #
     - name: setup default config for sabnzbd
-      shell: source /etc/profile.d/etcd.sh && source {{dnas_scripts}}/service_functions.sh && set_db_customconf_value /services/sabnzbd/config "{{item.section}}" "{{item.key}}" "{{item.value}}"
+      shell: source /etc/profile.d/etcd.sh && source {{dnas_scripts}}/etcd_functions.sh && set_etcd "/services/sabnzbd/config/{{item.section}}/{{item.key}}" "key" "{{item.value}}"
+      tags: default_config
       with_items: "{{sabnzbd_config}}"
 
+
     - name: setup default config for sickbeard
-      shell: source /etc/profile.d/etcd.sh && source {{dnas_scripts}}/service_functions.sh && set_db_customconf_value /services/sickbeard/config "{{item.section}}" "{{item.key}}" "{{item.value}}"
+      shell: source /etc/profile.d/etcd.sh && source {{dnas_scripts}}/etcd_functions.sh && set_etcd /services/sickbeard/config/"{{item.section}}"/"{{item.key}}" "key" "{{item.value}}"
       with_items: "{{sickbeard_config}}"
+      tags: default_config
 
     - name: setup default config for couchpotato
-      shell: source /etc/profile.d/etcd.sh && source {{dnas_scripts}}/service_functions.sh && set_db_customconf_value /services/couchpotato/config "{{item.section}}" "{{item.key}}" "{{item.value}}"
+      shell: source /etc/profile.d/etcd.sh && source {{dnas_scripts}}/etcd_functions.sh && set_etcd /services/couchpotato/config/"{{item.section}}"/"{{item.key}}" "key" "{{item.value}}"
       with_items: "{{couchpotato_config}}"
+      tags: default_config
 
     - name: setup default config for nzbtomedia
-      shell: source /etc/profile.d/etcd.sh && source {{dnas_scripts}}/service_functions.sh && set_db_customconf_value /services/nzbtomedia/config "{{item.section}}" "{{item.key}}" "{{item.value}}"
+      shell: source /etc/profile.d/etcd.sh && source {{dnas_scripts}}/etcd_functions.sh && set_etcd /services/nzbtomedia/config/"{{item.section}}"/"{{item.key}}" "key" "{{item.value}}"
       with_items: "{{nzbtomedia_config}}"
+      tags: default_config

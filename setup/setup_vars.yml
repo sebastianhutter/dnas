@@ -13,7 +13,10 @@
 # the dnas_base directory should reside on a disk with enough space - all data from the containers (downloaded files)
 # will be stored there
 
-dnas_base: /dnas
+
+
+#dnas_base: /dnas
+dnas_base: /home/shutter/Repository/dnas
 
 dnas_scripts: "{{dnas_base}}/scripts"
 docker_base: "{{dnas_base}}/docker"
@@ -52,7 +55,6 @@ sabnzbd_config:
   - {section: "[misc]", key: "par2_multicore", value: "0"}
   - {section: "[misc]", key: "script_dir", value: "/opt/nzbtomedia"}
   - {section: "[misc]", key: "empty_postproc", value: "1"}
-  - {section: "[servers]", key: "", value: ""} # this line will create the section [servers]
   - {section: "[categories]/[[*]]", key: "priority", value: "0"}
   - {section: "[categories]/[[*]]", key: "pp", value: "3"}
   - {section: "[categories]/[[*]]", key: "name", value: "*"}
@@ -61,7 +63,7 @@ sabnzbd_config:
   - {section: "[categories]/[[*]]", key: "dir", value: ""}
   - {section: "[categories]/[[movies]]", key: "priority", value: "-100"}
   - {section: "[categories]/[[movies]]", key: "pp", value: ""}
-  - {section: "[categories]/[[movies]]", key: "name", value: "movie"}
+  - {section: "[categories]/[[movies]]", key: "name", value: "movies"}
   - {section: "[categories]/[[movies]]", key: "script", value: "nzbToCouchPotato.py"}
   - {section: "[categories]/[[movies]]", key: "newzbin", value: ""}
   - {section: "[categories]/[[movies]]", key: "dir", value: "movie"}
