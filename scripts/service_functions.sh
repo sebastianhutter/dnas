@@ -27,8 +27,9 @@ function read_ini_configuration_file {
     do
       content="$content$line\n"
     done < "$file"
-    # now replace the [[ and the ]]
-    content=`echo $content | sed -e 's/\[\[/[-----/g' -e 's/\]\]/-----]/g'`
+    # now replace the [[ and the ]], replace leading spaces and replace spaces after
+    # the manually inserted \n
+    content=`echo $content | sed -e 's/\[\[/[-----/g' -e 's/\]\]/-----]/g' -e 's/^\s*//g' -e 's/\\\n\s/\\\n/g'`
 
     # return the configuration file
     echo $content
@@ -104,7 +105,7 @@ function read_ini_configuration_database {
     fi
   done
   # now replace the [[ and the ]]
-  ini=`echo $ini | sed -e 's/\[\[/[-----/g' -e 's/\]\]/-----]/g'`
+  ini=`echo $ini | sed -e 's/\[\[/[-----/g' -e 's/\]\]/-----]/g' -e 's/^\s*//g' -e 's/\\\n\s/\\\n/g'`
 
   # return the compiled ini file
   echo $ini
