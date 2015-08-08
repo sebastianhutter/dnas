@@ -9,9 +9,16 @@ param="$@"
 # plex media service
 if [ "$cmd" = 'sickbeard' ]; then
 
-  # if the configuration file does not exist copy it
+  # if the configuration file does not exist copy a
+  # basic configuration to the system
   if [ ! -f /opt/sickbeard-data/config.ini ]; then
     cp /opt/config.ini /opt/sickbeard-data/config.ini
+  fi
+
+  # if a 'new' configuration file exists replace the config.ini
+  # with it
+  if [ /opt/sickbeard-data/config.ini.new ]; then
+    cp -bu /opt/sickbeard-data/config.ini.new /opt/sickbeard-data/config.ini
   fi
 
   exec python /opt/sickbeard/SickBeard.py $param
