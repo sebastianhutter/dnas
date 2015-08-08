@@ -18,7 +18,7 @@ if [ "$cmd" = 'sickbeard' ]; then
   # if a 'new' configuration file exists replace the config.ini
   # with it
   if [ -f /opt/sickbeard-data/config.ini.new ]; then
-    cp -bu /opt/sickbeard-data/config.ini.new /opt/sickbeard-data/config.ini
+    cat /opt/sickbeard-data/config.ini.new > /opt/sickbeard-data/config.ini
   fi
 
   exec python /opt/sickbeard/SickBeard.py $param
