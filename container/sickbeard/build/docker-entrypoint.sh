@@ -17,7 +17,7 @@ if [ "$cmd" = 'sickbeard' ]; then
 
   # if a 'new' configuration file exists replace the config.ini
   # with it
-  if [ /opt/sickbeard-data/config.ini.new ]; then
+  if [ -f /opt/sickbeard-data/config.ini.new ]; then
     cp -bu /opt/sickbeard-data/config.ini.new /opt/sickbeard-data/config.ini
   fi
 
