@@ -1,7 +1,8 @@
 [Unit]
 Description=sabnzbd Service
-After=sabnzbd-data.service
-Requires=docker.service
+After=library.service nzbtomedia.service sabnzbd-data.service
+Before=sabnzbd-discovery.service nzbtomedia-discovery.service
+Requires=library.service nzbtomedia.service sabnzbd-data.service sabnzbd-discovery.service nzbtomedia-discovery.service
 
 [Service]
 EnvironmentFile=/etc/sysconfig/dnas

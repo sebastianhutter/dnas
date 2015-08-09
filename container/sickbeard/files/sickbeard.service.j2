@@ -1,7 +1,9 @@
 [Unit]
 Description=sickbeard Service
-After=sickbeard-data.service
-Requires=docker.service
+After=sabnzbd.service sickbeard-data.service
+Before=sickbeard-discovery.service
+Wants=sabnzbd.service
+Requires=sickbeard-discovery.service sickbeard-data.service
 
 [Service]
 EnvironmentFile=/etc/sysconfig/dnas
@@ -10,7 +12,6 @@ ExecStartPre=-/usr/bin/docker rm sickbeard
 ExecStartPre=/usr/bin/docker pull sebastianhutter/sickbeard
 ExecStart=/usr/bin/docker run --name sickbeard \
   --volumes-from sickbeard-data \
-  --link sabnzbd \
   -p {{sickbeard_port}}:8081 \
   sebastianhutter/sickbeard \
   sickbeard

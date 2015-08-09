@@ -1,7 +1,10 @@
 [Unit]
 Description=couchpotato Service
-After=couchpotato-data.service
-Requires=docker.service
+After=sabnzbd.service couchpotato-data.service
+Before=couchpotato-discovery.service
+Wants=sabnzbd.service
+Requires=couchpotato-data.service couchpotato-discovery.service
+
 
 [Service]
 EnvironmentFile=/etc/sysconfig/dnas

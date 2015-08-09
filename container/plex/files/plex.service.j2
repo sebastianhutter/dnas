@@ -1,7 +1,7 @@
 [Unit]
 Description=plex Service
-After=plex-data.service
-Requires=docker.service
+After=library.service plex-data.service
+Requires=library.service plex-data.service
 
 [Service]
 EnvironmentFile=/etc/sysconfig/dnas
@@ -11,7 +11,12 @@ ExecStartPre=/usr/bin/docker pull sebastianhutter/plex
 ExecStart=/usr/bin/docker run --name plex \
   --volumes-from plex-data \
   --volumes-from library \
-  -p {{plex_port}}:32400 \
+{% for port in plex_port_tcp %}
+        -p {{port}}:{{port}} \
+{% endfor %}
+{% for port in plex_port_udp %}
+        -p {{port}}:{{port}}/udp \
+{% endfor %}
   sebastianhutter/plex \
   plex
 ExecStop=/usr/bin/docker stop plex
@@ -19,6 +24,8 @@ Restart=on-failure
 # up the timeout values
 RestartSec=2s
 TimeoutStartSec=10s
+
+
 
 
 [Install]

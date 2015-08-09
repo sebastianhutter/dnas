@@ -1,7 +1,8 @@
 [Unit]
 Description=rssdler Service
-After=rssdler-data.service
-Requires=docker.service
+After=library.service rssdler-data.service
+Before=rssdler-discovery.service
+Requires=rssdler-data.service library.service rssdler-discovery.service
 
 [Service]
 EnvironmentFile=/etc/sysconfig/dnas
