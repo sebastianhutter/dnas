@@ -1,0 +1,24 @@
+[Unit]
+Description=nginx Service
+After=docker.service
+Requires=docker.service
+
+[Service]
+EnvironmentFile=/etc/sysconfig/dnas
+ExecStartPre=-/usr/bin/docker kill nginx-dnas
+ExecStartPre=-/usr/bin/docker rm nginx-dnas
+ExecStartPre=/usr/bin/docker pull nginx
+ExecStart=/usr/bin/docker run --name nginx-dnas \
+  -v {{dnas_html}}:/usr/share/nginx/html \
+  -p {{nginx_port}}:80 \
+  nginx
+ExecStop=/usr/bin/docker stop nginx-dnas
+Restart=on-failure
+# up the timeout values
+RestartSec=2s
+TimeoutStartSec=10s
+
+[Install]
+WantedBy=multi-user.target
+
+

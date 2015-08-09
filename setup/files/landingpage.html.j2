@@ -1,0 +1,20 @@
+<html>
+  <head>
+    <title>Dockerized NAS - services</title>
+  </head>
+  <body>
+    <h1>
+      Dockerized Services
+    </h1>
+    <p>
+      This page lists all the dockerized services running on this machine.</br>
+      Right now the data is static.
+    </p>
+    <hr ?>
+    {% for service in services %}
+      <h2>{{ service.name }}</h2>
+      <p>{{ service.desc }}</p>
+      <p><a href="http://{{ ansible_default_ipv4.address }}:{{ service.port }}{{ service.path }}">Link to {{ service.name }}</a></p>
+    {% endfor %}
+  </body>
+</html>
