@@ -12,23 +12,29 @@ fi
 # services to start or stop
 services=(
 library
-nzbtomedia
-rssdler-data
-rssdler
-rssdler-discovery
-sabnzbd-data
-sabnzbd
-sabnzbd-discovery
-nzbtomedia-discovery
-plex-data
-plex-discovery
 plex
-sickbeard-data
-sickbeard
-sickbeard-discovery
-couchpotato-data
+sabnzbd
 couchpotato
-couchpotato-discovery
+sickbeard
+nginx-dnas
+#library
+#nzbtomedia
+#rssdler-data
+#rssdler
+#rssdler-discovery
+#sabnzbd-data
+#sabnzbd
+#sabnzbd-discovery
+#nzbtomedia-discovery
+#plex-data
+#plex-discovery
+#plex
+#sickbeard-data
+#sickbeard
+#sickbeard-discovery
+#couchpotato-data
+#couchpotato
+#couchpotato-discovery
 )
 
 

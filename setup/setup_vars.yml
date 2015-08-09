@@ -19,6 +19,7 @@ dnas_base: /dnas
 #dnas_base: /home/shutter/Repository/dnas
 
 dnas_scripts: "{{dnas_base}}/scripts"
+dnas_html: "{{dnas_base}}/html"
 docker_base: "{{dnas_base}}/docker"
 etcd_base: "{{dnas_base}}/etcd"
 etcd_database: "{{etcd_base}}/dnas.etcd"
@@ -34,10 +35,32 @@ jshon_download: https://github.com/keenerd/jshon.git
 #####
 # static port mapping for docker containers
 #####
-plex_port: 32400
+plex_port_tcp:
+  - 32400
+  - 3005
+  - 8324
+  - 32469
+plex_port_udp:
+  - 1900
+#  - 5353
+  - 32410
+  - 32411
+  - 32412
+  - 32413
+  - 32414
 sabnzbd_port: 8085
 sickbeard_port: 8081
 couchpotato_port: 5050
+nginx_port: 80
+
+#####
+# service defintions, used the generate the landing page html
+#####
+services:
+  - {name: plex, desc: "The plex media server", port: 32400, path: "/web"}
+  - {name: sickbeard, desc: "The sickbeard pvr application for tv shoes", port: "{{sickbeard_port}}", path: ""}
+  - {name: couchpotato, desc: "The couchpotato pvr application for movies", port: "{{couchpotato_port}}", path: ""}
+  - {name: sabnzbd, desc: "The full auto newsreader", port: "{{sabnzbd_port}}", path: ""}
 
 
 #####

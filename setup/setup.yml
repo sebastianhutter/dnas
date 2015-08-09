@@ -30,11 +30,15 @@
         group=root
         mode=644
         backup=no
+      tags:
+        - docker
 
     - name: install docker
       yum:
         name=docker-engine
         state=latest
+      tags:
+        - docker
 
     - name: copy docker defaults
       template:
@@ -43,6 +47,8 @@
         owner=root
         group=root
         mode=0644
+      tags:
+        - docker
 
     - name: copy docker service file due to docker defaults not workingf
       template:
@@ -51,6 +57,8 @@
         owner=root
         group=root
         mode=0644
+      tags:
+        - docker
 
 #
 # setup dnas defaults
@@ -63,6 +71,8 @@
         owner=root
         group=root
         mode=0644
+      tags:
+        - dnas
 
     - name: copy etcd environment file for systemd
       template:
@@ -71,6 +81,8 @@
         owner=root
         group=root
         mode=0644
+      tags:
+        - etcd
 
     - name: create etcd user account
       user:
@@ -79,6 +91,8 @@
         system=yes
         shell=/bin/nologin
         state=present
+      tags:
+        - etcd
 
     - name: create dnas base directory
       file:
@@ -87,6 +101,9 @@
         group=root
         mode=0755
         state=directory
+      tags:
+        - dnas
+        - docker
 
     - name: create docker base directory
       file:
@@ -95,6 +112,8 @@
         group=root
         mode=0700
         state=directory
+      tags:
+        - docker
 
     - name: create etcd base directory
       file:
@@ -103,12 +122,17 @@
         group=etcd
         mode=0755
         state=directory
+      tags:
+        - dnas
+        - etcd
 
     - name: enable docker
       service:
         name=docker
         state=started
         enabled=yes
+      tags:
+        - docker
 
 
 #
@@ -119,10 +143,14 @@
       get_url:
         url={{etcd_download}}
         dest=/tmp/etcd.tar.gz
+      tags:
+        - etcd
 
     - name: extract etcd
       unarchive:
         src=/tmp/etcd.tar.gz dest=/opt
+      tags:
+        - etcd
 
     - name: create softlink for etcd
       file:
@@ -132,6 +160,8 @@
         group=etcd
         state=link
         force=yes
+      tags:
+        - etcd
 
     - name: copy service file
       template:
@@ -140,6 +170,8 @@
         owner=root
         group=root
         mode=0755
+      tags:
+        - etcd
 
     - name: copy etcd profile script
       template:
@@ -148,12 +180,16 @@
         owner=root
         group=root
         mode=0644
+      tags:
+        - etcd
 
     - name: enable and start etcd
       service:
         name=etcd
         state=started
         enabled=yes
+      tags:
+        - etcd
 
 #
 # could be done via etcd rpm!
@@ -166,10 +202,14 @@
         owner=root
         group=root
         mode=0644
+      tags:
+        - dnas
 
     - name: get all dnas scripts from setup
       command: ls -1 ../scripts
       register: files
+      tags:
+        - dnas
 
     - name: copy the dnas scripts
       copy: cp -a ../scripts/{{item}} {{dnas_scripts}}
@@ -179,6 +219,8 @@
         group=root
         mode=0755
       with_items: "{{files.stdout_lines}}"
+      tags:
+        - dnas
 #
 # compile jsson - a json parser cli
 #
@@ -188,6 +230,8 @@
         repo={{jshon_download}}
         dest=/opt/jshon
       register: update
+      tags:
+        - dnas
 
     - name: install jansson devel libraries
       yum:
@@ -197,14 +241,20 @@
         - jansson-devel
         - gcc
       when: update.changed
+      tags:
+        - dnas
 
     - name: compile jshon
       command: make chdir=/opt/jshon
       when: update.changed
+      tags:
+        - dnas
 
     - name: install jshon
       command: make install chdir=/opt/jshon
       when: update.changed
+      tags:
+        - dnas
 
     - name: remove jshon build dependencies
       command: yum autoremove -y {{item}}
@@ -212,6 +262,8 @@
         - gcc
         - jansson-devel
       when: update.changed
+      tags:
+        - dnas
 #
 # install socat to access the docker socket via bash
 #
@@ -220,6 +272,8 @@
       yum:
         name=socat
         state=latest
+      tags:
+        - dnas
 
 #
 # install crudini to work with the different ini files
@@ -230,6 +284,8 @@
       yum:
         name=crudini
         state=latest
+      tags:
+        - dnas
 
 #
 # setup the different docker containers
@@ -264,7 +320,6 @@
       tags: default_config
       with_items: "{{sabnzbd_config}}"
 
-
     - name: setup default config for sickbeard
       shell: source /etc/profile.d/etcd.sh && source {{dnas_scripts}}/etcd_functions.sh && set_etcd /services/sickbeard/config/"{{item.section}}"/"{{item.key}}" "key" "{{item.value}}"
       with_items: "{{sickbeard_config}}"
@@ -279,3 +334,52 @@
       shell: source /etc/profile.d/etcd.sh && source {{dnas_scripts}}/etcd_functions.sh && set_etcd /services/nzbtomedia/config/"{{item.section}}"/"{{item.key}}" "key" "{{item.value}}"
       with_items: "{{nzbtomedia_config}}"
       tags: default_config
+
+#
+# set up some basic landing page to access the different services
+# running on the system
+#
+
+    - name: install nginx docker service file
+      template:
+        src=files/nginx-dnas.service.j2
+        dest=/etc/systemd/system/nginx-dnas.service
+        owner=root
+        group=root
+        mode=0755
+      register: systemd
+      tags:
+        - landingpage
+
+    - name: reload systemd daemon
+      command: systemctl daemon-reload
+      when: systemd.changed
+      tags:
+        - landingpage
+
+    - name: create html directory to hold the landing page
+      file:
+        path={{dnas_html}}
+        state=directory
+        owner=root
+        group=root
+        mode=0755
+      tags:
+        - landingpage
+
+    - name: copy the html page
+      template:
+        src=files/landingpage.html.j2
+        dest={{dnas_html}}/index.html
+        owner=root
+        group=root
+        mode=0755
+      tags:
+        - landingpage
+
+    - name: enable the nginx container services
+      service:
+        name=nginx-dnas
+        enabled=yes
+      tags:
+        - landingpage
