@@ -4,6 +4,10 @@
 
   vars:
     couchpotatogit: https://github.com/RuudBurger/CouchPotatoServer.git
+    configurl: ""
+    configuser: ""
+    configpass: ""
+    configlocal: "/home/couchpotato/.couchpotato/settings.conf"
     yumpackages:
       - git
 
@@ -13,16 +17,23 @@
         name={{item}}
         state=present
       with_items: "{{yumpackages}}"
+      tags:
+        - setup
 
     - name: checkout couchpotato
       git:
         repo={{couchpotatogit}}
         dest=/opt/couchpotato
+      tags:
+        - setup
+        - update
 
     - name: create couchpotato daemon user
       user:
         name=couchpotato
         system=yes
+      tags:
+        - setup
 
     - name: create couchpotato directories
       file:
@@ -33,6 +44,8 @@
         group=couchpotato
       with_items:
         - .couchpotato
+      tags:
+        - setup
 
     - name: copy the entrypoint script
       copy:
@@ -41,6 +54,8 @@
         owner=root
         group=root
         mode=0755
+      tags:
+        - setup
 
     - name: copy the default couchpotato settings to /opt
       copy:
@@ -49,3 +64,49 @@
         owner=couchpotato
         group=couchpotato
         mode=0644
+      tags:
+        - setup
+
+    - name: copy the couchpotato playbook to /opt
+      copy:
+        src=couchpotato.yml
+        dest=/opt/couchpotato.yml
+        owner=couchpotato
+        group=couchpotato
+        mode=0644
+      tags:
+        - setup
+
+#
+# download the configuration file
+#
+
+    - name: download a current config file 
+      get_url:
+        url="{{configurl}}"
+        dest="{{configlocal}}"
+        force=yes
+      when: configurl != "" and configuser == ""
+      tags:
+        - config
+
+    - name: download a current config file 
+      get_url:
+        url="{{configurl}}"
+        url_username="{{configuser}}"
+        url_password="{{configpass}}"
+        dest="{{configlocal}}"
+        force=yes
+      when: configurl != "" and configuser != ""
+      tags:
+        - config
+
+    - name: correct the owner of the configuration file
+      file:
+        path="{{configlocal}}"
+        state=touch
+        mode=0755
+        owner=couchpotato
+        group=couchpotato
+      tags:
+        - config
