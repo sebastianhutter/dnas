@@ -102,7 +102,7 @@ if [ "$CMD" = 'couchpotato' ]; then
   fi
 
   # run couchpotato with the users home directory as data duir
-  exec sudo -u couchpotato python /home/couchpotato/bin/CouchPotato.py --data_dir /home/couchpotato $param
+  exec sudo -u couchpotato python /opt/couchpotato/CouchPotato.py --data_dir /home/couchpotato $param
 fi
 
 # if the first paramter is not plex start

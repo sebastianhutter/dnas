@@ -98,7 +98,7 @@ if [ "$CMD" = 'sickbeard' ]; then
   fi
 
   # run sickbeard with the users home directory as data duir
-  exec sudo -u sickbeard python /home/sickbeard/bin/SickBeard.py --datadir /home/sickbeard/data --config /home/sickbeard/config.ini $param
+  exec sudo -u sickbeard python /opt/sickbeard/SickBeard.py --datadir /home/sickbeard/data --config /home/sickbeard/config.ini $param
 fi
 
 # if the first paramter is not plex start

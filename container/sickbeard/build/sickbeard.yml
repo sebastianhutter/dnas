@@ -40,7 +40,7 @@
 
     sickbeard_config: "{{service_user.home}}/config.ini"
 
-    sickbeard_wc: "{{service_user.home}}/bin"
+    sickbeard_wc: "/opt/sickbeard"
 
     pippackages:
       - cheetah

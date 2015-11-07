@@ -43,7 +43,7 @@
 
     couchpotato_config: "{{service_user.home}}/settings.conf"
 
-    couchpotato_wc: "{{service_user.home}}/bin"
+    couchpotato_wc: "/opt/couchpotato"
 
     yumpackages:
       - git
