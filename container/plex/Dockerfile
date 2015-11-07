@@ -3,7 +3,7 @@ FROM ansible/centos7-ansible:stable
 # run the ansible playbook to setup the rssdler service
 ADD build /tmp/build
 WORKDIR /tmp/build
-RUN ansible-playbook plex.yml -c local
+RUN ansible-playbook plex.yml -c local -t setup
 WORKDIR /
 RUN rm -rf /tmp/build
 
@@ -20,8 +20,8 @@ EXPOSE 32469
 
 
 # become rssdler user
-USER plex
+USER container
 # run the rssdler script
 ENTRYPOINT ["/opt/docker-entrypoint.sh"]
 # if no parameters are given show the help
-#CMD ["ec", "--help"]
+CMD ["-c plex"]
