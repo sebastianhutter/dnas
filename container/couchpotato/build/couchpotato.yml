@@ -24,7 +24,7 @@
       shell: '/bin/bash'
       comment: 'container user'
 
-    couchpotato_user:
+    service_user:
       name: 'couchpotato'
       home: '/home/couchpotato'
       uid: '998'
@@ -35,15 +35,15 @@
       comment: 'couchpotato user'
 
     couchpotato_dirs:
-      - "{{couchpotato_user.home}}/cache"
-      - "{{couchpotato_user.home}}/custom_plugins"
-      - "{{couchpotato_user.home}}/database"
-      - "{{couchpotato_user.home}}/db_backup"
-      - "{{couchpotato_user.home}}/logs"
+      - "{{service_user.home}}/cache"
+      - "{{service_user.home}}/custom_plugins"
+      - "{{service_user.home}}/database"
+      - "{{service_user.home}}/db_backup"
+      - "{{service_user.home}}/logs"
 
-    couchpotato_config: "{{couchpotato_user.home}}/settings.conf"
+    couchpotato_config: "{{service_user.home}}/settings.conf"
 
-    couchpotato_wc: "{{couchpotato_user.home}}/bin"
+    couchpotato_wc: "{{service_user.home}}/bin"
 
     yumpackages:
       - git
@@ -95,9 +95,9 @@
 
     - name: create couchpotato group
       group:
-        name="{{couchpotato_user.group}}"
-        gid="{{couchpotato_user.gid}}"
-        system="{{couchpotato_user.system}}"
+        name="{{service_user.group}}"
+        gid="{{service_user.gid}}"
+        system="{{service_user.system}}"
         state=present
       become: no
       tags:
@@ -105,12 +105,12 @@
 
     - name: create couchpotato daemon user
       user:
-        name="{{couchpotato_user.name}}"
-        home="{{couchpotato_user.home}}"
-        uid="{{couchpotato_user.uid}}"
-        group="{{couchpotato_user.group}}"
-        shell="{{couchpotato_user.shell}}"
-        system="{{couchpotato_user.system}}"
+        name="{{service_user.name}}"
+        home="{{service_user.home}}"
+        uid="{{service_user.uid}}"
+        group="{{service_user.group}}"
+        shell="{{service_user.shell}}"
+        system="{{service_user.system}}"
       become: no
       tags:
         - setup
@@ -120,8 +120,8 @@
         path="{{item}}"
         state=directory
         mode=0755
-        owner="{{couchpotato_user.name}}"
-        group="{{couchpotato_user.group}}"
+        owner="{{service_user.name}}"
+        group="{{service_user.group}}"
       with_items:
         - "{{couchpotato_home}}"
         - "{{couchpotato_dirs}}"
@@ -172,11 +172,11 @@
 
     - name: set the permissions of the CouchPotato dir
       file:
-        path={{couchpotato_user.home}}
+        path={{service_user.home}}
         state=directory
         recurse=yes
-        owner="{{couchpotato_user.name}}"
-        group="{{couchpotato_user.group}}"
+        owner="{{service_user.name}}"
+        group="{{service_user.group}}"
       become: no
       tags:
         - setup
@@ -224,8 +224,8 @@
         path="{{couchpotato_config}}"
         state=touch
         mode=0755
-        owner="{{couchpotato_user.name}}"
-        group="{{couchpotato_user.group}}"
+        owner="{{service_user.name}}"
+        group="{{service_user.group}}"
       tags:
         - config
 
@@ -246,8 +246,8 @@
         src="/opt/settings.conf"
         dest="{{couchpotato_config}}"
         mode=0755
-        owner="{{couchpotato_user.name}}"
-        group="{{couchpotato_user.group}}"
+        owner="{{service_user.name}}"
+        group="{{service_user.group}}"
       when:
         config_exist.stat.exists == False
       tags:
@@ -271,8 +271,8 @@
     - name: replace /etc/passwd with specified UID and GID
       replace:
         dest=/etc/passwd
-        regexp='{{couchpotato_user.name}}{{ ":" }}x{{ ":" }}{{couchpotato_user.uid}}{{ ":" }}{{couchpotato_user.gid}}{{ ":" }}{{couchpotato_user.comment}}{{ ":" }}{{couchpotato_user.home | regex_replace('\/','---000---')}}{{ ":" }}{{couchpotato_user.shell | regex_replace('\/','---000---')}}'
-        replace='{{couchpotato_user.name}}{{ ":" }}x{{ ":" }}{{volume_uid}}{{ ":" }}{{volume_gid}}{{ ":" }}{{couchpotato_user.comment}}{{ ":" }}{{couchpotato_user.home | regex_replace('\/','---000---')}}{{ ":" }}{{couchpotato_user.shell | regex_replace('\/','---000---')}}'
+        regexp='{{service_user.name}}{{ ":" }}x{{ ":" }}{{service_user.uid}}{{ ":" }}{{service_user.gid}}{{ ":" }}{{service_user.comment}}{{ ":" }}{{service_user.home | regex_replace('\/','---000---')}}{{ ":" }}{{service_user.shell | regex_replace('\/','---000---')}}'
+        replace='{{service_user.name}}{{ ":" }}x{{ ":" }}{{volume_uid}}{{ ":" }}{{volume_gid}}{{ ":" }}{{service_user.comment}}{{ ":" }}{{service_user.home | regex_replace('\/','---000---')}}{{ ":" }}{{service_user.shell | regex_replace('\/','---000---')}}'
         owner=root
         group=root
         mode=0644
@@ -283,8 +283,8 @@
     - name: replace /etc/group with specified GID
       replace:
         dest=/etc/passwd
-        regexp='{{couchpotato_user.name}}{{ ":" }}x{{ ":" }}{{couchpotato_user.gid}}{{ ":" }}'
-        replace='{{couchpotato_user.name}}{{ ":" }}x{{ ":" }}{{volume_gid}}{{ ":" }}'
+        regexp='{{service_user.name}}{{ ":" }}x{{ ":" }}{{service_user.gid}}{{ ":" }}'
+        replace='{{service_user.name}}{{ ":" }}x{{ ":" }}{{volume_gid}}{{ ":" }}'
         owner=root
         group=root
         mode=0644
@@ -304,16 +304,7 @@
     # if the folder is shared from the host this
     # step may fail. therefore we ignore the error
     - name: set the permissions of the CouchPotato dir
-      command: "chown -R {{volume_uid}}:{{volume_gid}} {{couchpotato_user.home}}"
+      command: "chown -R {{volume_uid}}:{{volume_gid}} {{service_user.home}}"
       ignore_errors: yes
       tags:
         - uid
-
-
-#
-# when the setup finishes or when the uid was changed we
-# need to set the correct permissions on the users home directory
-#
-
-
-
