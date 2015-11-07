@@ -1,23 +1,57 @@
 ---
 
 - hosts: localhost
+  gather_facts: no
+  become: yes
 
   vars:
-    couchpotatogit: https://github.com/RuudBurger/CouchPotatoServer.git
-    configurl: ""
-    configuser: ""
-    configpass: ""
-    couchpotato_home: /home/couchpotato/.couchpotato
+    couchpotato_git: https://github.com/RuudBurger/CouchPotatoServer.git
+
+    config_url: ""
+    config_user: ""
+    config_pass: ""
+
+    volume_uid: ""
+    volume_gid: ""
+
+    container_user:
+      name: 'container'
+      home: '/home/container'
+      uid: '500'
+      gid: '500'
+      group: 'container'
+      system: 'yes'
+      shell: '/bin/bash'
+      comment: 'container user'
+
+    couchpotato_user:
+      name: 'couchpotato'
+      home: '/home/couchpotato'
+      uid: '998'
+      gid: '998'
+      group: 'couchpotato'
+      system: 'yes'
+      shell: '/bin/bash'
+      comment: 'couchpotato user'
+
     couchpotato_dirs:
-      - "{{couchpotato_home}}/cache"
-      - "{{couchpotato_home}}/custom_plugins"
-      - "{{couchpotato_home}}/database"
-      - "{{couchpotato_home}}/db_backup"
-      - "{{couchpotato_home}}/logs"
-    couchpotato_config: "/home/couchpotato/.couchpotato/settings.conf"
+      - "{{couchpotato_user.home}}/cache"
+      - "{{couchpotato_user.home}}/custom_plugins"
+      - "{{couchpotato_user.home}}/database"
+      - "{{couchpotato_user.home}}/db_backup"
+      - "{{couchpotato_user.home}}/logs"
+
+    couchpotato_config: "{{couchpotato_user.home}}/settings.conf"
+
+    couchpotato_wc: "{{couchpotato_user.home}}/bin"
 
     yumpackages:
       - git
+      - sudo
+
+    sudoers:
+      file: "/etc/sudoers.d/{{container_user.name}}"
+      line: "{{container_user.name}} ALL=(ALL) NOPASSWD:ALL"
 
   tasks:
     - name: install yum packages
@@ -25,35 +59,81 @@
         name={{item}}
         state=present
       with_items: "{{yumpackages}}"
+      become: no
       tags:
         - setup
 
-    - name: checkout couchpotato
-      git:
-        repo={{couchpotatogit}}
-        dest=/opt/couchpotato
+    - name: install sudoers file
+      copy:
+        content="{{sudoers.line}}"
+        dest="{{sudoers.file}}"
+      become: no
       tags:
         - setup
-        - update
+
+    - name: create container group
+      group:
+        name="{{container_user.group}}"
+        gid="{{container_user.gid}}"
+        system="{{container_user.system}}"
+        state=present
+      become: no
+      tags:
+        - setup
+
+    - name: create container user
+      user:
+        name="{{container_user.name}}"
+        home="{{container_user.home}}"
+        uid="{{container_user.uid}}"
+        group="{{container_user.group}}"
+        shell="{{container_user.shell}}"
+        system="{{container_user.system}}"
+      become: no
+      tags:
+        - setup
+
+    - name: create couchpotato group
+      group:
+        name="{{couchpotato_user.group}}"
+        gid="{{couchpotato_user.gid}}"
+        system="{{couchpotato_user.system}}"
+        state=present
+      become: no
+      tags:
+        - setup
 
     - name: create couchpotato daemon user
       user:
-        name=couchpotato
-        system=yes
+        name="{{couchpotato_user.name}}"
+        home="{{couchpotato_user.home}}"
+        uid="{{couchpotato_user.uid}}"
+        group="{{couchpotato_user.group}}"
+        shell="{{couchpotato_user.shell}}"
+        system="{{couchpotato_user.system}}"
+      become: no
       tags:
         - setup
-
 
     - name: create couchpotato home directories
       file:
         path="{{item}}"
         state=directory
         mode=0755
-        owner=couchpotato
-        group=couchpotato
+        owner="{{couchpotato_user.name}}"
+        group="{{couchpotato_user.group}}"
       with_items:
-        - {{couchpotato_home}}
-        - {{couchpotato_dirs}}
+        - "{{couchpotato_home}}"
+        - "{{couchpotato_dirs}}"
+      become: no
+      tags:
+        - setup
+
+    - name: checkout couchpotato
+      git:
+        repo="{{couchpotato_git}}"
+        dest="{{couchpotato_wc}}"
+      become: no
       tags:
         - setup
 
@@ -64,6 +144,7 @@
         owner=root
         group=root
         mode=0755
+      become: no
       tags:
         - setup
 
@@ -71,9 +152,10 @@
       copy:
         src=settings.conf
         dest=/opt/settings.conf
-        owner=couchpotato
-        group=couchpotato
+        owner=root
+        group=root
         mode=0644
+      become: no
       tags:
         - setup
 
@@ -81,22 +163,35 @@
       copy:
         src=couchpotato.yml
         dest=/opt/couchpotato.yml
-        owner=couchpotato
-        group=couchpotato
+        owner=root
+        group=root
         mode=0644
+      become: no
       tags:
         - setup
 
-    - name: set the permissions of the /opt/couchpotato dir
+    - name: set the permissions of the CouchPotato dir
       file:
-        path=/opt/couchpotato
+        path={{couchpotato_user.home}}
         state=directory
         recurse=yes
-        owner=couchpotato
-        group=couchpotato
+        owner="{{couchpotato_user.name}}"
+        group="{{couchpotato_user.group}}"
+      become: no
       tags:
         - setup
 
+
+#
+# update couchpotato
+#
+
+    - name: checkout couchpotato
+      git:
+        repo="{{couchpotato_git}}"
+        dest="{{couchpotato_wc}}"
+      tags:
+        - update
 
 #
 # download the configuration file
@@ -104,21 +199,23 @@
 
     - name: download a current config file
       get_url:
-        url="{{configurl}}"
+        url="{{config_url}}"
         dest="{{couchpotato_config}}"
+        validate_certs=no
         force=yes
-      when: configurl != "" and configuser == ""
+      when: config_url != "" and config_user == ""
       tags:
         - config
 
     - name: download a current config file
       get_url:
-        url="{{configurl}}"
-        url_username="{{configuser}}"
-        url_password="{{configpass}}"
+        url="{{config_url}}"
+        url_username="{{config_user}}"
+        url_password="{{config_pass}}"
         dest="{{couchpotato_config}}"
+        validate_certs=no
         force=yes
-      when: configurl != "" and configuser != ""
+      when: config_url != "" and config_user != ""
       tags:
         - config
 
@@ -127,7 +224,96 @@
         path="{{couchpotato_config}}"
         state=touch
         mode=0755
-        owner=couchpotato
-        group=couchpotato
+        owner="{{couchpotato_user.name}}"
+        group="{{couchpotato_user.group}}"
       tags:
         - config
+
+#
+# if the couchpotato config file does not exist
+# copy it from /opt
+#
+
+    - name: check if config file exists
+      stat:
+        path="{{couchpotato_config}}"
+      register: config_exist
+      tags:
+        - default_config
+
+    - name: copy default configuration file
+      copy:
+        src="/opt/settings.conf"
+        dest="{{couchpotato_config}}"
+        mode=0755
+        owner="{{couchpotato_user.name}}"
+        group="{{couchpotato_user.group}}"
+      when:
+        config_exist.stat.exists == False
+      tags:
+        - default_config
+
+#
+# change the user id of the containers user
+# this is usefull because we use volumes from the host
+# for the db, logs etc
+# inspired by: http://chapeau.freevariable.com/2014/08/docker-uid.html
+#
+
+    - name: replace all / in /etc/passwd and /etc/group
+      replace:
+        dest=/etc/passwd
+        regexp='\/'
+        replace='---000---'
+      tags:
+        - uid
+
+    - name: replace /etc/passwd with specified UID and GID
+      replace:
+        dest=/etc/passwd
+        regexp='{{couchpotato_user.name}}{{ ":" }}x{{ ":" }}{{couchpotato_user.uid}}{{ ":" }}{{couchpotato_user.gid}}{{ ":" }}{{couchpotato_user.comment}}{{ ":" }}{{couchpotato_user.home | regex_replace('\/','---000---')}}{{ ":" }}{{couchpotato_user.shell | regex_replace('\/','---000---')}}'
+        replace='{{couchpotato_user.name}}{{ ":" }}x{{ ":" }}{{volume_uid}}{{ ":" }}{{volume_gid}}{{ ":" }}{{couchpotato_user.comment}}{{ ":" }}{{couchpotato_user.home | regex_replace('\/','---000---')}}{{ ":" }}{{couchpotato_user.shell | regex_replace('\/','---000---')}}'
+        owner=root
+        group=root
+        mode=0644
+      tags:
+        - uid
+      when: volume_uid != "" and volume_gid != ""
+
+    - name: replace /etc/group with specified GID
+      replace:
+        dest=/etc/passwd
+        regexp='{{couchpotato_user.name}}{{ ":" }}x{{ ":" }}{{couchpotato_user.gid}}{{ ":" }}'
+        replace='{{couchpotato_user.name}}{{ ":" }}x{{ ":" }}{{volume_gid}}{{ ":" }}'
+        owner=root
+        group=root
+        mode=0644
+      tags:
+        - uid
+      when: volume_uid != "" and volume_gid != ""
+
+    - name: replace all / in /etc/passwd and /etc/group
+      replace:
+        dest=/etc/passwd
+        regexp='---000---'
+        replace='/'
+      tags:
+        - uid
+
+    # set the permissions on the folders.
+    # if the folder is shared from the host this
+    # step may fail. therefore we ignore the error
+    - name: set the permissions of the CouchPotato dir
+      command: "chown -R {{volume_uid}}:{{volume_gid}} {{couchpotato_user.home}}"
+      ignore_errors: yes
+      tags:
+        - uid
+
+
+#
+# when the setup finishes or when the uid was changed we
+# need to set the correct permissions on the users home directory
+#
+
+
+
