@@ -7,7 +7,15 @@
     configurl: ""
     configuser: ""
     configpass: ""
-    configlocal: "/home/couchpotato/.couchpotato/settings.conf"
+    couchpotato_home: /home/couchpotato/.couchpotato
+    couchpotato_dirs:
+      - "{{couchpotato_home}}/cache"
+      - "{{couchpotato_home}}/custom_plugins"
+      - "{{couchpotato_home}}/database"
+      - "{{couchpotato_home}}/db_backup"
+      - "{{couchpotato_home}}/logs"
+    couchpotato_config: "/home/couchpotato/.couchpotato/settings.conf"
+
     yumpackages:
       - git
 
@@ -36,15 +44,16 @@
         - setup
 
 
-    - name: create couchpotato directories
+    - name: create couchpotato home directories
       file:
-        path=/home/couchpotato/{{item}}
+        path="{{item}}"
         state=directory
         mode=0755
         owner=couchpotato
         group=couchpotato
       with_items:
-        - .couchpotato
+        - {{couchpotato_home}}
+        - {{couchpotato_dirs}}
       tags:
         - setup
 
@@ -96,7 +105,7 @@
     - name: download a current config file
       get_url:
         url="{{configurl}}"
-        dest="{{configlocal}}"
+        dest="{{couchpotato_config}}"
         force=yes
       when: configurl != "" and configuser == ""
       tags:
@@ -107,7 +116,7 @@
         url="{{configurl}}"
         url_username="{{configuser}}"
         url_password="{{configpass}}"
-        dest="{{configlocal}}"
+        dest="{{couchpotato_config}}"
         force=yes
       when: configurl != "" and configuser != ""
       tags:
@@ -115,7 +124,7 @@
 
     - name: correct the owner of the configuration file
       file:
-        path="{{configlocal}}"
+        path="{{couchpotato_config}}"
         state=touch
         mode=0755
         owner=couchpotato
