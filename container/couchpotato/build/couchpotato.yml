@@ -123,7 +123,6 @@
         owner="{{service_user.name}}"
         group="{{service_user.group}}"
       with_items:
-        - "{{couchpotato_home}}"
         - "{{couchpotato_dirs}}"
       become: no
       tags:
