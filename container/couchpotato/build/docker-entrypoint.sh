@@ -61,7 +61,7 @@ shift $(expr $OPTIND - 1 )
 param="$@"
 
 
-if [ "$cmd" = 'couchpotato' ]; then
+if [ "$CMD" = 'couchpotato' ]; then
 
   # run the couchpotato playbook to upgrade the local installation
   ansible-playbook /opt/couchpotato.yml -c local -t update
@@ -84,7 +84,7 @@ fi
 # if the first paramter is not plex start
 # whatever parameters where given
 if [ -z "$param" ]; then
-    exec "$cmd"
+    exec "$CMD"
 else
     exec "$cmd" $param
 fi
