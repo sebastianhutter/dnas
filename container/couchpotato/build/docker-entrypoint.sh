@@ -17,7 +17,7 @@ OPTIONS:
    -u      username for the config file download
    -p      password for the config file download
    -f      url to the config file
-   -p      if specified the script will change the uid / gid of the service account
+   -q      if specified the script will change the uid / gid of the service account
    -i      uid to use for couchpotato user (useful is container runs with shared volumes)
    -o      gid to use for the couchpotato user (useful is container runs with shared volumes)
 Update of the configuration file
