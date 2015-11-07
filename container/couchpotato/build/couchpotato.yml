@@ -35,6 +35,7 @@
       tags:
         - setup
 
+
     - name: create couchpotato directories
       file:
         path=/home/couchpotato/{{item}}
@@ -77,11 +78,22 @@
       tags:
         - setup
 
+    - name: set the permissions of the /opt/couchpotato dir
+      file:
+        path=/opt/couchpotato
+        state=directory
+        recurse=yes
+        owner=couchpotato
+        group=couchpotato
+      tags:
+        - setup
+
+
 #
 # download the configuration file
 #
 
-    - name: download a current config file 
+    - name: download a current config file
       get_url:
         url="{{configurl}}"
         dest="{{configlocal}}"
@@ -90,7 +102,7 @@
       tags:
         - config
 
-    - name: download a current config file 
+    - name: download a current config file
       get_url:
         url="{{configurl}}"
         url_username="{{configuser}}"
