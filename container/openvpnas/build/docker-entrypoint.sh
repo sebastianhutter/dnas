@@ -47,6 +47,11 @@ if [ "$CMD" = 'openvpnas' ]; then
       fi
   done
 
+  # remove pid file if it exists
+  if [ -e "/var/run/openvpnas.pid" ]; then
+    rm -f "/var/run/openvpnas.pid" &>/dev/null
+  fi
+
   # run the openvpn service
   # for openvpn to work properly we need iptables
   # add --cap-add=NET_ADMIN --cap-add=NET_RAW --device=/dev/net/tun to your docker command line to make it work
