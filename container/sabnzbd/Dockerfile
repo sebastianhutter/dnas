@@ -3,15 +3,15 @@ FROM ansible/centos7-ansible:stable
 # run the ansible playbook to setup the rssdler service
 ADD build /tmp/build
 WORKDIR /tmp/build
-RUN ansible-playbook sabnzbd.yml -c local
+RUN ansible-playbook sabnzbd.yml -c local -t setup
 WORKDIR /
 RUN rm -rf /tmp/build
 
 EXPOSE 8085
 
 # become rssdler user
-USER sabnzbd
+USER container
 # run the rssdler script
 ENTRYPOINT ["/opt/docker-entrypoint.sh"]
-CMD ["sabnzbd" ,"-s", "0.0.0.0:8085"]
+CMD ["-c sabnzbd"]
 
