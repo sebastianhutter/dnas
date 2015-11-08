@@ -7,6 +7,7 @@ RUN ansible-playbook openvpnas.yml -c local -t setup
 WORKDIR /
 RUN rm -rf /tmp/build
 
+EXPOSE 443
 EXPOSE 943
 EXPOSE 1194
 EXPOSE 1194/UDP
