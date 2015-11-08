@@ -31,6 +31,8 @@
       - git
       - sudo
       - net-tools
+      - tcpdump
+      - tcptraceroute
 
     sudoers:
       file: "/etc/sudoers.d/{{container_user.name}}"
