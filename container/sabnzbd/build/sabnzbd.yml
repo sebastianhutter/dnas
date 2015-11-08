@@ -10,6 +10,15 @@
 
     nzbtomedia_git: https://github.com/clinton-hall/nzbToMedia.git
 
+    config_url: ""
+    nzbtomedia_url: ""
+
+    config_user: ""
+    config_pass: ""
+
+    volume_uid: ""
+    volume_gid: ""
+
     pipbuild:
       - make
       - gcc
@@ -72,6 +81,8 @@
       - "{{service_user.home}}/Downloads/complete"
 
     sabnzbd_config: "{{service_user.home}}/sabnzbd.ini"
+
+    nzbtomedia_config: "{{service_user.home}}/autoProcessMedia.cfg"
 
     sabnzbd_wc: "/opt/sabnzbd"
 
@@ -203,6 +214,16 @@
       tags:
         - setup
 
+    - name: create softlink for nzbToMedia config file
+      file:
+        src={{nzbtomedia_config}}
+        dest={{nzbtomedia_wc}}/autoProcessMedia.cfg
+        state=link
+        force=yes
+      become: no
+      tags:
+        - setup
+
     - name: copy the entrypoint script
       copy:
         src=docker-entrypoint.sh
@@ -282,7 +303,7 @@
 # download the configuration file
 #
 
-    - name: download a current config file
+    - name: download a current sabnzbd config file
       get_url:
         url="{{config_url}}"
         dest="{{sabnzbd_config}}"
@@ -292,7 +313,17 @@
       tags:
         - config
 
-    - name: download a current config file
+    - name: download a current nzbToMedia config file
+      get_url:
+        url="{{nzbtomedia_url}}"
+        dest="{{nzbtomedia_config}}"
+        validate_certs=no
+        force=yes
+      when: nzbtomedia_config != "" and config_user == ""
+      tags:
+        - config
+
+    - name: download a current sabnzbd config file (with password)
       get_url:
         url="{{config_url}}"
         url_username="{{config_user}}"
@@ -304,13 +335,28 @@
       tags:
         - config
 
-    - name: correct the owner of the configuration file
+    - name: download a current nzbtomedia config file (with password)
+      get_url:
+        url="{{nzbtomedia_url}}"
+        url_username="{{config_user}}"
+        url_password="{{config_pass}}"
+        dest="{{nzbtomedia_config}}"
+        validate_certs=no
+        force=yes
+      when: nzbtomedia_config != "" and config_user != ""
+      tags:
+        - config
+
+    - name: correct the owner of the configuration files
       file:
-        path="{{sabnzbd_config}}"
+        path="{{item}}"
         state=touch
         mode=0755
         owner="{{service_user.name}}"
         group="{{service_user.group}}"
+      with_items:
+        - "{{sabnzbd_config}}"
+        - "{{nzbtomedia_config}}"
       tags:
         - config
 

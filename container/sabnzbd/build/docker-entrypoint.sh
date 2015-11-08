@@ -16,7 +16,8 @@ OPTIONS:
    -m      if specified the sabnzbd source will be updated
    -u      username for the config file download
    -p      password for the config file download
-   -f      url to the config file
+   -f      url to the config file of sabnzbd
+   -d      url to the config file of nzbtomedia
    -q      if specified the script will change the uid / gid of the service account
    -i      uid to use for sabnzbd user (useful is container runs with shared volumes)
    -o      gid to use for the sabnzbd user (useful is container runs with shared volumes)
@@ -31,11 +32,12 @@ UPDATE=0
 CONFIG=0
 USERNAME=""
 PASSWORD=""
-URL=""
+URL1=""
+URL2=""
 CHANGEID=0
 VOL_UID=""
 VOL_GID=""
-while getopts "hc:nmqu:p:f:i:o:" OPTION
+while getopts "hc:nmqu:p:f:d:i:o:" OPTION
 do
      case $OPTION in
          h)
@@ -58,7 +60,10 @@ do
              PASSWORD=1
              ;;
          f)
-             URL=$OPTARG
+             URL1=$OPTARG
+             ;;
+         d)
+             URL2=$OPTARG
              ;;
          i)
              VOL_UID=$OPTARG
@@ -88,7 +93,7 @@ if [ "$CMD" = 'sabnzbd' ]; then
   # run the sabnzbd playbook to copy the newest configuration file from
   # the users git repository
   if [ "$CONFIG" -eq "1" ]; then
-    ansible-playbook /opt/sabnzbd.yml -c local -t config --extra-vars "config_url=$URL config_user=$USERNAME config_pass=$PASSWORD"
+    ansible-playbook /opt/sabnzbd.yml -c local -t config --extra-vars "config_url=$URL1 nzbtomedia_url=$URL2 config_user=$USERNAME config_pass=$PASSWORD"
   fi
 
   # before we can start sabnzbd we need to make sure a configuration
