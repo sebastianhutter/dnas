@@ -214,10 +214,10 @@
       tags:
         - setup
 
-    - name: create softlink for nzbToMedia config file
+    - name: create softlink ffor libx264
       file:
-        src={{nzbtomedia_config}}
-        dest={{nzbtomedia_wc}}/autoProcessMedia.cfg
+        src=/usr/local/lib/libx264.so.148
+        dest=/usr/lib64/libx264.so.148
         state=link
         force=yes
       become: no
@@ -273,6 +273,17 @@
     - name: set the permissions of the sabnzbd dir
       file:
         path={{service_user.home}}
+        state=directory
+        recurse=yes
+        owner="{{service_user.name}}"
+        group="{{service_user.group}}"
+      become: no
+      tags:
+        - setup
+
+    - name: set the permissions for the nzbtomedia directory
+      file:
+        path={{nzbtomedia_wc}}
         state=directory
         recurse=yes
         owner="{{service_user.name}}"
@@ -360,6 +371,12 @@
       tags:
         - config
 
+    - name: copy the nzbtomedia config file to the nzbtomedia root
+      command: "cp -f {{nzbtomedia_config}} {{nzbtomedia_wc}}"
+      tags:
+        - config
+      ignore_errors: yes
+
 #
 # if the sabnzbd config file does not exist
 # copy it from /opt
@@ -439,3 +456,4 @@
       ignore_errors: yes
       tags:
         - uid
+
