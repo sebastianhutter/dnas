@@ -388,7 +388,7 @@
     # set the permissions on the folders.
     # if the folder is shared from the host this
     # step may fail. therefore we ignore the error
-    - name: set the permissions of the CouchPotato dir
+    - name: set the permissions of the sabnzbd dir
       command: "chown -R {{volume_uid}}:{{volume_gid}} {{service_user.home}}"
       ignore_errors: yes
       tags:
