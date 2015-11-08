@@ -1,0 +1,105 @@
+---
+
+- hosts: localhost
+  gather_facts: no
+  become: yes
+
+  vars:
+    openvpnas_rpm: http://swupdate.openvpn.org/as/openvpn-as-2.0.21-CentOS7.x86_64.rpm
+
+
+    config_url: ""
+    config_user: ""
+    config_pass: ""
+
+    volume_uid: ""
+    volume_gid: ""
+
+    container_user:
+      name: 'container'
+      home: '/home/container'
+      uid: '500'
+      gid: '500'
+      group: 'container'
+      system: 'yes'
+      shell: '/bin/bash'
+      comment: 'container user'
+
+    openvpn_password: $6$rounds=656000$cUcj4L2vfNCG1MjO$YeJLYa9OUdV4RWDpMcvAxM/5Fidzl9MBPCgRY4qC9mWtYdWcd2ThIkhka9AmxBldNhsbO1FmLaLcQqfookC3F0
+
+    yumpackages:
+      - git
+      - sudo
+      - net-tools
+
+    sudoers:
+      file: "/etc/sudoers.d/{{container_user.name}}"
+      line: "{{container_user.name}} ALL=(ALL) NOPASSWD:ALL"
+
+  tasks:
+    - name: install openvpn as packages
+      yum:
+        name={{openvpnas_rpm}}
+        state=present
+      become: no
+      tags:
+        - setup
+
+    - name: install yum packages
+      yum:
+        name={{item}}
+        state=present
+      with_items: "{{yumpackages}}"
+      become: no
+      tags:
+        - setup
+
+    - name: install sudoers file
+      copy:
+        content="{{sudoers.line}}"
+        dest="{{sudoers.file}}"
+      become: no
+      tags:
+        - setup
+
+    - name: create container group
+      group:
+        name="{{container_user.group}}"
+        gid="{{container_user.gid}}"
+        system="{{container_user.system}}"
+        state=present
+      become: no
+      tags:
+        - setup
+
+    - name: create container user
+      user:
+        name="{{container_user.name}}"
+        home="{{container_user.home}}"
+        uid="{{container_user.uid}}"
+        group="{{container_user.group}}"
+        shell="{{container_user.shell}}"
+        system="{{container_user.system}}"
+      become: no
+      tags:
+        - setup
+
+    - name: set password of openvpn user
+      user:
+        name=openvpn
+        password="{{openvpn_password}}"
+        state=present
+      become: no
+      tags:
+        - setup
+
+    - name: copy the entrypoint script
+      copy:
+        src=docker-entrypoint.sh
+        dest=/opt/docker-entrypoint.sh
+        owner=root
+        group=root
+        mode=0755
+      become: no
+      tags:
+        - setup
