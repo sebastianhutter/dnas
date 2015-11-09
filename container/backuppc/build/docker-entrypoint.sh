@@ -81,28 +81,9 @@ param="$@"
 
 if [ "$CMD" = 'backuppc' ]; then
 
-  # run the couchpotato playbook to upgrade the local installation
-  if [ "$UPDATE" -eq "1" ]; then
-    ansible-playbook /opt/couchpotato.yml -c local -t update
-  fi
-  # run the couchpotato playbook to copy the newest configuration file from
-  # the users git repository
-  if [ "$CONFIG" -eq "1" ]; then
-    ansible-playbook /opt/couchpotato.yml -c local -t config --extra-vars "config_url=$URL config_user=$USERNAME config_pass=$PASSWORD"
-  fi
-
-  # before we can start couchpotato we need to make sure a configuration
-  # file does exists. if the file does not exist the default file will be copied
-  ansible-playbook /opt/couchpotato.yml -c local -t default_config
-
-  # now last step is to make sure the user in thelsd docker container
-  # has the correct uid and gid set to properly work with shared volumes
-  if [ "$CHANGEID" -eq "1" ]; then
-    ansible-playbook /opt/couchpotato.yml -c local -t uid --extra-vars "volume_uid=$VOL_UID volume_gid=$VOL_GID"
-  fi
-
-  # run couchpotato with the users home directory as data duir
-  exec sudo -u couchpotato python /opt/couchpotato/CouchPotato.py --data_dir /home/couchpotato $param
+  # run supervisor to start
+  # the necessary services
+  exec sudo /usr/bin/supervisord
 fi
 
 # if the first paramter is not plex start

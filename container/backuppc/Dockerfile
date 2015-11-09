@@ -7,8 +7,10 @@ RUN ansible-playbook backuppc.yml -c local -t setup
 WORKDIR /
 RUN rm -rf /tmp/build
 
-EXPOSE 8433
-EXPOSE 2222
+# used for backuppc website
+EXPOSE 80
+# used for rsync via sshd / rssh
+EXPOSE 22
 
 # become rssdler user
 USER container

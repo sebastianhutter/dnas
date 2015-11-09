@@ -22,15 +22,25 @@
       shell: '/bin/bash'
       comment: 'container user'
 
+    # the user is automatically created by installing the
+    # backuppc rpm
     service_user:
       name: 'backuppc'
       home: '/home/backuppc'
-      uid: '998'
+      uid: '999'
       gid: '998'
       group: 'backuppc'
       system: 'yes'
       shell: '/bin/bash'
       comment: 'backuppc user'
+
+    backuppc_dir: /var/lib/BackupPC
+    backuppc_config_dir: /etc/BackupPC
+
+    httpd_user: apache
+    backuppc_user: backuppc
+
+    backuppc_webuser: "backuppc:$apr1$O/QmWrxH$U4wF4uzRWesINReJLr/X3."
 
 # couchpotato_dirs:
 #       - "{{service_user.home}}/cache"
@@ -40,7 +50,6 @@
 #       - "{{service_user.home}}/logs"
 
 #     couchpotato_config: "{{service_user.home}}/settings.conf"
-
 #     couchpotato_wc: "/opt/couchpotato"
 
     yumpackages:
@@ -48,6 +57,11 @@
       - sudo
       - backuppc
       - openssh-server
+      - http://pkgs.repoforge.org/rssh/rssh-2.3.3-2.el7.rf.x86_64.rpm
+      - nss-pam-ldapd
+
+    pippackages:
+      - supervisor
 
     sudoers:
       file: "/etc/sudoers.d/{{container_user.name}}"
@@ -59,6 +73,15 @@
         name={{item}}
         state=present
       with_items: "{{yumpackages}}"
+      become: no
+      tags:
+        - setup
+
+    - name: install pip packages
+      yum:
+        name={{item}}
+        state=present
+      with_items: "{{pippackages}}"
       become: no
       tags:
         - setup
@@ -93,24 +116,204 @@
       tags:
         - setup
 
-    - name: create backuppc group
-      group:
-        name="{{service_user.group}}"
-        gid="{{service_user.gid}}"
-        system="{{service_user.system}}"
+    # - name: create backuppc group
+    #   group:
+    #     name="{{service_user.group}}"
+    #     gid="{{service_user.gid}}"
+    #     system="{{service_user.system}}"
+    #     state=present
+    #   become: no
+    #   tags:
+    #     - setup
+
+    # - name: create backuppc daemon user
+    #   user:
+    #     name="{{service_user.name}}"
+    #     home="{{service_user.home}}"
+    #     uid="{{service_user.uid}}"
+    #     group="{{service_user.group}}"
+    #     shell="{{service_user.shell}}"
+    #     system="{{service_user.system}}"
+    #   become: no
+    #   tags:
+    #     - setup
+
+    #- name: set permissions on backuppc
+
+
+#
+# configure rssh for rsync capabilities via ssh
+#
+
+    - name: allow rsync via rssh
+      lineinfile:
+        dest=/etc/rssh.conf
+        line="allowrsync"
         state=present
       become: no
       tags:
         - setup
 
-    - name: create backuppc daemon user
-      user:
-        name="{{service_user.name}}"
-        home="{{service_user.home}}"
-        uid="{{service_user.uid}}"
-        group="{{service_user.group}}"
-        shell="{{service_user.shell}}"
-        system="{{service_user.system}}"
+#
+# copy supvervisor config and necessary startup scripts
+#
+
+    - name: copy the supervisor config
+      template:
+        src=supervisord.ini
+        dest=/etc/supervisord.d/
+        owner=root
+        group=root
+        mode=0755
       become: no
       tags:
         - setup
+
+    - name: copy the supervisor config
+      copy:
+        src=execute_sshd.sh
+        dest=/sbin/execute_sshd.sh
+        owner=root
+        group=root
+        mode=0744
+      become: no
+      tags:
+        - setup
+
+#
+# set web user password for backupp website
+#
+
+    - name: copy custom backuppc html config (open, no auth)
+      template:
+        src=BackupPC.conf
+        dest=/etc/httpd/conf.d/BackupPC.conf
+        mode=0644
+      become: no
+      tags:
+        - setup
+
+    #- name: copy http passwd
+    #  copy:
+    #    content="{{backuppc_webuser}}"
+    #    dest="/etc/BackupPC/apache.users"
+    #  become: no
+    #  tags:
+    #    - setup
+
+#
+# enable all users to be administrators on backuppc by default
+#
+    - name: allow all users to be admin - should be changed!
+      lineinfile:
+        dest=/etc/BackupPC/config.pl
+        line="$Conf{CgiAdminUsers} = '*';"
+        state=present
+      become: no
+      tags:
+        - setup
+
+#
+# copy entrypoint and setup files
+#
+
+    - name: copy the entrypoint script
+      copy:
+        src=docker-entrypoint.sh
+        dest=/opt/docker-entrypoint.sh
+        owner=root
+        group=root
+        mode=0755
+      become: no
+      tags:
+        - setup
+
+    - name: copy the backuppc playbook to /opt
+      copy:
+        src=backuppc.yml
+        dest=/opt/backuppc.yml
+        owner=root
+        group=root
+        mode=0644
+      become: no
+      tags:
+        - setup
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#
+# change the user id of the containers user
+# this is usefull because we use volumes from the host
+# for the db, logs etc
+# inspired by: http://chapeau.freevariable.com/2014/08/docker-uid.html
+#
+
+    - name: replace all / in /etc/passwd and /etc/group
+      replace:
+        dest=/etc/passwd
+        regexp='\/'
+        replace='---000---'
+      tags:
+        - uid
+
+    - name: replace /etc/passwd with specified UID and GID
+      replace:
+        dest=/etc/passwd
+        regexp='{{service_user.name}}{{ ":" }}x{{ ":" }}{{service_user.uid}}{{ ":" }}{{service_user.gid}}{{ ":" }}{{service_user.comment}}{{ ":" }}{{service_user.home | regex_replace('\/','---000---')}}{{ ":" }}{{service_user.shell | regex_replace('\/','---000---')}}'
+        replace='{{service_user.name}}{{ ":" }}x{{ ":" }}{{volume_uid}}{{ ":" }}{{volume_gid}}{{ ":" }}{{service_user.comment}}{{ ":" }}{{service_user.home | regex_replace('\/','---000---')}}{{ ":" }}{{service_user.shell | regex_replace('\/','---000---')}}'
+        owner=root
+        group=root
+        mode=0644
+      tags:
+        - uid
+      when: volume_uid != "" and volume_gid != ""
+
+    - name: replace /etc/group with specified GID
+      replace:
+        dest=/etc/passwd
+        regexp='{{service_user.name}}{{ ":" }}x{{ ":" }}{{service_user.gid}}{{ ":" }}'
+        replace='{{service_user.name}}{{ ":" }}x{{ ":" }}{{volume_gid}}{{ ":" }}'
+        owner=root
+        group=root
+        mode=0644
+      tags:
+        - uid
+      when: volume_uid != "" and volume_gid != ""
+
+    - name: replace all / in /etc/passwd and /etc/group
+      replace:
+        dest=/etc/passwd
+        regexp='---000---'
+        replace='/'
+      tags:
+        - uid
+
+    # set the permissions on the folders.
+    # if the folder is shared from the host this
+    # step may fail. therefore we ignore the error
+    - name: set the permissions of the backuppc home dir
+      command: "chown -R {{volume_uid}}:{{volume_gid}} {{service_user.home}}"
+      ignore_errors: yes
+      tags:
+        - uid
+
+    - name: set the permissions of the backuppc dir
+      command: "chown -R {{volume_uid}}:{{volume_gid}} {{backuppc_dir}}"
+      ignore_errors: yes
+      tags:
+        - uid
+
