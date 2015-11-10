@@ -25,18 +25,21 @@
       shell: '/bin/bash'
       comment: 'container user'
 
+    # the user is automatically created
+    # by the plex rpm
     service_user:
       name: 'plex'
-      home: '/home/plex'
-      uid: '998'
-      gid: '998'
+      home: '/var/lib/plexmediaserver'
+      uid: '499'
+      gid: '499'
       group: 'plex'
       system: 'yes'
-      shell: '/bin/bash'
+      shell: '/sbin/nologin'
       comment: 'plex user'
 
-    plex_dirs:
-      - "/var/lib/plexmediaserver/Library/Application\ Support/Plex\ Media\ Server/"
+    # not necessary - the plex dir is pretty much the users home dir
+    #plex_dirs:
+    #  - "/var/lib/plexmediaserver/Library/Application\ Support/Plex\ Media\ Server/"
 
     yumpackages:
       - sudo
@@ -86,40 +89,40 @@
       tags:
         - setup
 
-    - name: create plex group
-      group:
-        name="{{service_user.group}}"
-        gid="{{service_user.gid}}"
-        system="{{service_user.system}}"
-        state=present
-      become: no
-      tags:
-        - setup
+    # - name: create plex group
+    #   group:
+    #     name="{{service_user.group}}"
+    #     gid="{{service_user.gid}}"
+    #     system="{{service_user.system}}"
+    #     state=present
+    #   become: no
+    #   tags:
+    #     - setup
 
-    - name: create plex daemon user
-      user:
-        name="{{service_user.name}}"
-        home="{{service_user.home}}"
-        uid="{{service_user.uid}}"
-        group="{{service_user.group}}"
-        shell="{{service_user.shell}}"
-        system="{{service_user.system}}"
-      become: no
-      tags:
-        - setup
+    # - name: create plex daemon user
+    #   user:
+    #     name="{{service_user.name}}"
+    #     home="{{service_user.home}}"
+    #     uid="{{service_user.uid}}"
+    #     group="{{service_user.group}}"
+    #     shell="{{service_user.shell}}"
+    #     system="{{service_user.system}}"
+    #   become: no
+    #   tags:
+    #     - setup
 
-    - name: create plex directories
-      file:
-        path="{{item}}"
-        state=directory
-        mode=0755
-        owner="{{service_user.name}}"
-        group="{{service_user.group}}"
-      with_items:
-        - "{{plex_dirs}}"
-      become: no
-      tags:
-        - setup
+    # - name: create plex directories
+    #   file:
+    #     path="{{item}}"
+    #     state=directory
+    #     mode=0755
+    #     owner="{{service_user.name}}"
+    #     group="{{service_user.group}}"
+    #   with_items:
+    #     - "{{plex_dirs}}"
+    #   become: no
+    #   tags:
+    #     - setup
 
     - name: installing plex media server
       yum:
@@ -151,16 +154,16 @@
       tags:
         - setup
 
-    - name: set the permissions of the plex home dir
-      file:
-        path={{service_user.home}}
-        state=directory
-        recurse=yes
-        owner="{{service_user.name}}"
-        group="{{service_user.group}}"
-      become: no
-      tags:
-        - setup
+    # - name: set the permissions of the plex home dir
+    #   file:
+    #     path={{service_user.home}}
+    #     state=directory
+    #     recurse=yes
+    #     owner="{{service_user.name}}"
+    #     group="{{service_user.group}}"
+    #   become: no
+    #   tags:
+    #     - setup
 
 #
 # change the user id of the containers user
