@@ -82,11 +82,11 @@
 
     sabnzbd_config: "{{service_user.home}}/sabnzbd.ini"
 
-    nzbtomedia_config: "{{service_user.home}}/autoProcessMedia.cfg"
-
     sabnzbd_wc: "/opt/sabnzbd"
 
     nzbtomedia_wc: "/opt/nzbtomedia"
+
+    nzbtomedia_config: "{{nzbtomedia_wc}}/autoProcessMedia.cfg"
 
     sudoers:
       file: "/etc/sudoers.d/{{container_user.name}}"
@@ -320,6 +320,8 @@
         dest="{{sabnzbd_config}}"
         validate_certs=no
         force=yes
+        owner="{{service_user.name}}"
+        group="{{service_user.group}}"
       when: config_url != "" and config_user == ""
       tags:
         - config
@@ -330,6 +332,8 @@
         dest="{{nzbtomedia_config}}"
         validate_certs=no
         force=yes
+        owner="{{service_user.name}}"
+        group="{{service_user.group}}"
       when: nzbtomedia_config != "" and config_user == ""
       tags:
         - config
@@ -342,6 +346,8 @@
         dest="{{sabnzbd_config}}"
         validate_certs=no
         force=yes
+        owner="{{service_user.name}}"
+        group="{{service_user.group}}"
       when: config_url != "" and config_user != ""
       tags:
         - config
@@ -354,6 +360,8 @@
         dest="{{nzbtomedia_config}}"
         validate_certs=no
         force=yes
+        owner="{{service_user.name}}"
+        group="{{service_user.group}}"
       when: nzbtomedia_config != "" and config_user != ""
       tags:
         - config
@@ -371,11 +379,11 @@
       tags:
         - config
 
-    - name: copy the nzbtomedia config file to the nzbtomedia root
-      command: "cp -f {{nzbtomedia_config}} {{nzbtomedia_wc}}"
-      tags:
-        - config
-      ignore_errors: yes
+    # - name: copy the nzbtomedia config file to the nzbtomedia root
+    #   command: "cp -f {{nzbtomedia_config}} {{nzbtomedia_wc}}"
+    #   tags:
+    #     - config
+    #   ignore_errors: yes
 
 #
 # if the sabnzbd config file does not exist
