@@ -40,16 +40,9 @@ param="$@"
 
 if [ "$CMD" = 'openvpnas' ]; then
 
-  # remove sock files (the ...../etc folder is usually mounted as persistent volume)
-  for sf in $sockfile ; do
-      if [ -e "$sf" ]; then
-        rm -f "$sf" &>/dev/null
-      fi
-  done
-
   # remove pid file if it exists
   if [ -e "/var/run/openvpnas.pid" ]; then
-    rm -f "/var/run/openvpnas.pid" &>/dev/null
+    sudo rm -f "/var/run/openvpnas.pid" &>/dev/null
   fi
 
   # run the openvpn service
