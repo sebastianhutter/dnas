@@ -1,0 +1,223 @@
+- hosts: localhost
+  gather_facts: no
+  become: yes
+
+  vars:
+    #couchpotato_git: https://github.com/RuudBurger/CouchPotatoServer.git
+
+    ubooquity_download: http://vaemendis.net/ubooquity/downloads/Ubooquity-1.8.2.zip
+
+    ubooquity_dir: /opt/ubooquity
+
+    config_url: ""
+    config_user: ""
+    config_pass: ""
+
+    volume_uid: ""
+    volume_gid: ""
+
+    container_user:
+      name: 'container'
+      home: '/home/container'
+      uid: '500'
+      gid: '500'
+      group: 'container'
+      system: 'yes'
+      shell: '/bin/bash'
+      comment: 'container user'
+
+    # the user is automatically created by installing the
+    # backuppc rpm
+    service_user:
+      name: 'ubooquity'
+      home: '/home/ubooquity'
+      uid: '999'
+      gid: '998'
+      group: 'ubooquity'
+      system: 'yes'
+      shell: '/bin/bash'
+      comment: 'ubooquity user'
+
+    yumpackages:
+      - git
+      - sudo
+      - unzip
+      - java-1.8.0-openjdk
+
+    sudoers:
+      file: "/etc/sudoers.d/{{container_user.name}}"
+      line: "{{container_user.name}} ALL=(ALL) NOPASSWD:ALL"
+
+  tasks:
+    - name: install yum packages
+      yum:
+        name={{item}}
+        state=present
+      with_items: "{{yumpackages}}"
+      become: no
+      tags:
+        - setup
+
+    - name: install sudoers file
+      copy:
+        content="{{sudoers.line}}"
+        dest="{{sudoers.file}}"
+      become: no
+      tags:
+        - setup
+
+    - name: create container group
+      group:
+        name="{{container_user.group}}"
+        gid="{{container_user.gid}}"
+        system="{{container_user.system}}"
+        state=present
+      become: no
+      tags:
+        - setup
+
+    - name: create container user
+      user:
+        name="{{container_user.name}}"
+        home="{{container_user.home}}"
+        uid="{{container_user.uid}}"
+        group="{{container_user.group}}"
+        shell="{{container_user.shell}}"
+        system="{{container_user.system}}"
+      become: no
+      tags:
+        - setup
+
+    - name: create service group
+      group:
+        name="{{service_user.group}}"
+        gid="{{service_user.gid}}"
+        system="{{service_user.system}}"
+        state=present
+      become: no
+      tags:
+        - setup
+
+    - name: create service daemon user
+      user:
+        name="{{service_user.name}}"
+        home="{{service_user.home}}"
+        uid="{{service_user.uid}}"
+        group="{{service_user.group}}"
+        shell="{{service_user.shell}}"
+        system="{{service_user.system}}"
+      become: no
+      tags:
+        - setup
+
+#
+# download and extract the ubooquity jar
+#
+
+    - name: download the ubooquity zip
+      get_url:
+        url="{{ubooquity_download}}"
+        dest="{{ubooquity_dir}}/ubooquity.zip"
+      become: no
+      tags:
+        - setup
+
+    - name: extract ubooquity zip
+      unarchive:
+        src="{{ubooquity_dir}}/ubooquity.zip"
+        dest="{{ubooquity_dir}}"
+        copy=no
+      become: no
+      tags:
+        - setup
+
+    - name: remove archive
+      file:
+        path="{{ubooquity_dir}}/ubooquity.zip"
+        state=absent
+      become: no
+      tags:
+        - setup
+
+#
+# copy entrypoint and setup files
+#
+
+    - name: copy the entrypoint script
+      copy:
+        src=docker-entrypoint.sh
+        dest=/opt/docker-entrypoint.sh
+        owner=root
+        group=root
+        mode=0755
+      become: no
+      tags:
+        - setup
+
+    - name: copy the ubooquity playbook to /opt
+      copy:
+        src=ubooquity.yml
+        dest=/opt/ubooquity.yml
+        owner=root
+        group=root
+        mode=0644
+      become: no
+      tags:
+        - setup
+
+
+#
+# change the user id of the containers user
+# this is usefull because we use volumes from the host
+# for the db, logs etc
+# inspired by: http://chapeau.freevariable.com/2014/08/docker-uid.html
+#
+
+    - name: replace all / in /etc/passwd and /etc/group
+      replace:
+        dest=/etc/passwd
+        regexp='\/'
+        replace='---000---'
+      tags:
+        - uid
+
+    - name: replace /etc/passwd with specified UID and GID
+      replace:
+        dest=/etc/passwd
+        regexp='{{service_user.name}}{{ ":" }}x{{ ":" }}{{service_user.uid}}{{ ":" }}{{service_user.gid}}{{ ":" }}{{service_user.comment}}{{ ":" }}{{service_user.home | regex_replace('\/','---000---')}}{{ ":" }}{{service_user.shell | regex_replace('\/','---000---')}}'
+        replace='{{service_user.name}}{{ ":" }}x{{ ":" }}{{volume_uid}}{{ ":" }}{{volume_gid}}{{ ":" }}{{service_user.comment}}{{ ":" }}{{service_user.home | regex_replace('\/','---000---')}}{{ ":" }}{{service_user.shell | regex_replace('\/','---000---')}}'
+        owner=root
+        group=root
+        mode=0644
+      tags:
+        - uid
+      when: volume_uid != "" and volume_gid != ""
+
+    - name: replace /etc/group with specified GID
+      replace:
+        dest=/etc/passwd
+        regexp='{{service_user.name}}{{ ":" }}x{{ ":" }}{{service_user.gid}}{{ ":" }}'
+        replace='{{service_user.name}}{{ ":" }}x{{ ":" }}{{volume_gid}}{{ ":" }}'
+        owner=root
+        group=root
+        mode=0644
+      tags:
+        - uid
+      when: volume_uid != "" and volume_gid != ""
+
+    - name: replace all / in /etc/passwd and /etc/group
+      replace:
+        dest=/etc/passwd
+        regexp='---000---'
+        replace='/'
+      tags:
+        - uid
+
+    # set the permissions on the folders.
+    # if the folder is shared from the host this
+    # step may fail. therefore we ignore the error
+    - name: set the permissions of the backuppc home dir
+      command: "chown -R {{volume_uid}}:{{volume_gid}} {{service_user.home}}"
+      ignore_errors: yes
+      tags:
+        - uid
