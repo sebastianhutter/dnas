@@ -8,6 +8,10 @@
     ubooquity_download: http://vaemendis.net/ubooquity/downloads/Ubooquity-1.8.2.zip
 
     ubooquity_dir: /opt/ubooquity
+    ubooquity_config: /home/ubooquity/preferences.xml
+    ubooquity_cred: /home/ubooquity/webadmin.cred
+    # the default admin password for the service - is: ubooquity
+    ubooquity_admin_pass: d23acd4df07a1cb6b9deb0e79f24bd14995f55d631f4529b7b87e6cbdad9a296
 
     config_url: ""
     config_user: ""
@@ -114,6 +118,14 @@
 # download and extract the ubooquity jar
 #
 
+    - name: create ubooquity directory
+      file:
+        path="{{ubooquity_dir}}"
+        state=directory
+      become: no
+      tags:
+        - setup
+
     - name: download the ubooquity zip
       get_url:
         url="{{ubooquity_download}}"
@@ -140,6 +152,18 @@
         - setup
 
 #
+# setup the admin credentials for the service
+#
+    - name: set admin credentials for service
+      copy:
+        content="{{ubooquity_admin_pass}}"
+        dest="{{ubooquity_cred}}"
+        owner="{{service_user.name}}"
+        group="{{service_user.group}}"
+      become: no
+      tags:
+        - setup
+#
 # copy entrypoint and setup files
 #
 
@@ -164,6 +188,37 @@
       become: no
       tags:
         - setup
+
+#
+# download the configuration file
+#
+
+    - name: download a current ubooquity config file
+      get_url:
+        url="{{config_url}}"
+        dest="{{ubooquity_config}}"
+        validate_certs=no
+        force=yes
+        owner="{{service_user.name}}"
+        group="{{service_user.group}}"
+      when: config_url != "" and config_user == ""
+      tags:
+        - config
+
+
+    - name: download a current ubooquity config file (with password)
+      get_url:
+        url="{{config_url}}"
+        url_username="{{config_user}}"
+        url_password="{{config_pass}}"
+        dest="{{ubooquity_config}}"
+        validate_certs=no
+        force=yes
+        owner="{{service_user.name}}"
+        group="{{service_user.group}}"
+      when: config_url != "" and config_user != ""
+      tags:
+        - config
 
 
 #

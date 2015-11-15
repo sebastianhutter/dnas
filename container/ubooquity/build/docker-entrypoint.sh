@@ -12,12 +12,20 @@ It takes multiple arguments
 OPTIONS:
    -h      Show this message
    -c      the command to run (by default its set to run the dockerized service)
-
+   -n      if specified the config file will be updated before the service starts
+   -u      username for the config file download
+   -p      password for the config file download
+   -f      url to the config file
 
 EOF
 }
 
 CMD="ubooquity"
+CONFIG=0
+USERNAME=""
+PASSWORD=""
+URL=""
+
 while getopts "hc:nmqu:p:f:i:o:" OPTION
 do
      case $OPTION in
@@ -27,6 +35,18 @@ do
              ;;
          c)
              CMD=$OPTARG
+             ;;
+         n)
+             CONFIG=1
+             ;;
+         u)
+             USERNAME=$OPTARG
+             ;;
+         p)
+             PASSWORD=$OPTARG
+             ;;
+         f)
+             URL=$OPTARG
              ;;
          ?)
              usage
@@ -40,8 +60,10 @@ param="$@"
 
 if [ "$CMD" = 'ubooquity' ]; then
 
-  # run supervisor to start
-  # the necessary services
+  if [ "$CONFIG" -eq "1" ]; then
+    ansible-playbook /opt/ubooquity.yml -c local -t config --extra-vars "config_url=$URL config_user=$USERNAME config_pass=$PASSWORD"
+  fi
+
   exec sudo -u ubooquity java -jar /opt/ubooquity/Ubooquity.jar -webadmin -headless -workdir /home/ubooquity
 fi
 

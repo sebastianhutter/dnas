@@ -8,7 +8,7 @@ WORKDIR /
 RUN rm -rf /tmp/build
 
 # used for ubooquity website
-EXPOSE 2022
+EXPOSE 2202
 
 # create a volume for the persistent data of the ubooquity server
 VOLUME /home/ubooquity
