@@ -26,7 +26,7 @@ USERNAME=""
 PASSWORD=""
 URL=""
 
-while getopts "hc:nmqu:p:f:i:o:" OPTION
+while getopts "hc:nu:p:f:" OPTION
 do
      case $OPTION in
          h)
