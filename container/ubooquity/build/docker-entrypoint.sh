@@ -27,7 +27,11 @@ USERNAME=""
 PASSWORD=""
 URL=""
 
+<<<<<<< HEAD
 while getopts "hc:nmqu:p:f:d:i:o:" OPTION
+=======
+while getopts "hc:nu:p:f:" OPTION
+>>>>>>> origin/master
 do
      case $OPTION in
          h)

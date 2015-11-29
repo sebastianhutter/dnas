@@ -262,6 +262,7 @@
         owner="{{service_user.name}}"
         group="{{service_user.group}}"
       when: config_url != "" and config_user == ""
+      ignore_errors: yes # need to ignore errors, job will fail if copied to nfs
       tags:
         - config
 
@@ -276,6 +277,7 @@
         owner="{{service_user.name}}"
         group="{{service_user.group}}"
       when: config_url != "" and config_user != ""
+      ignore_errors: yes # need to ignore errors, job will fail if copied to nfs
       tags:
         - config
 
