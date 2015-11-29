@@ -16,6 +16,7 @@ OPTIONS:
    -u      username for the config file download
    -p      password for the config file download
    -f      url to the config file
+   -d      url to the config file of httpd
 
 EOF
 }
@@ -26,7 +27,7 @@ USERNAME=""
 PASSWORD=""
 URL=""
 
-while getopts "hc:nmqu:p:f:i:o:" OPTION
+while getopts "hc:nmqu:p:f:d:i:o:" OPTION
 do
      case $OPTION in
          h)
@@ -46,7 +47,10 @@ do
              PASSWORD=$OPTARG
              ;;
          f)
-             URL=$OPTARG
+             URL1=$OPTARG
+             ;;
+         d)
+             URL2=$OPTARG
              ;;
          ?)
              usage
@@ -61,10 +65,14 @@ param="$@"
 if [ "$CMD" = 'ubooquity' ]; then
 
   if [ "$CONFIG" -eq "1" ]; then
-    ansible-playbook /opt/ubooquity.yml -c local -t config --extra-vars "config_url=$URL config_user=$USERNAME config_pass=$PASSWORD"
+    ansible-playbook /opt/ubooquity.yml -c local -t config --extra-vars "config_url=$URL1 nginx_url=$URL2 config_user=$USERNAME config_pass=$PASSWORD"
   fi
 
-  exec sudo -u ubooquity java -jar /opt/ubooquity/Ubooquity.jar -webadmin -headless -workdir /home/ubooquity
+  # create ssl certificate if not existing
+  ansible-playbook /opt/ubooquity.yml -c local -t ssl
+
+  #exec sudo -u ubooquity java -jar /opt/ubooquity/Ubooquity.jar -webadmin -headless -workdir /home/ubooquity
+  exec sudo /usr/bin/supervisord
 fi
 
 # if the first paramter is not plex start

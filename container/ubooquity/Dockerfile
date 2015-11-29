@@ -9,9 +9,11 @@ RUN rm -rf /tmp/build
 
 # used for ubooquity website
 EXPOSE 2202
+EXPOSE 443
 
 # create a volume for the persistent data of the ubooquity server
 VOLUME /home/ubooquity
+VOLUME /etc/nginx/ssl
 
 # become rssdler user
 USER container

@@ -13,9 +13,14 @@
     # the default admin password for the service - is: ubooquity
     ubooquity_admin_pass: d23acd4df07a1cb6b9deb0e79f24bd14995f55d631f4529b7b87e6cbdad9a296
 
+    nginx_config: /etc/nginx/nginx.conf
+
     config_url: ""
+    nginx_url: ""
     config_user: ""
     config_pass: ""
+
+
 
     volume_uid: ""
     volume_gid: ""
@@ -35,8 +40,8 @@
     service_user:
       name: 'ubooquity'
       home: '/home/ubooquity'
-      uid: '999'
-      gid: '998'
+      uid: '990'
+      gid: '990'
       group: 'ubooquity'
       system: 'yes'
       shell: '/bin/bash'
@@ -46,7 +51,14 @@
       - git
       - sudo
       - unzip
+      - openssl
       - java-1.8.0-openjdk
+      - nginx-1.6.2-1.el7.centos.ngx.x86_64.rpm
+      # the rpm was built via:
+      # https://github.com/arcanericky/nginx-with-ldap-plugin-rpm
+
+    pippackages:
+      - supervisor
 
     sudoers:
       file: "/etc/sudoers.d/{{container_user.name}}"
@@ -58,6 +70,15 @@
         name={{item}}
         state=present
       with_items: "{{yumpackages}}"
+      become: no
+      tags:
+        - setup
+
+    - name: install pip packages
+      yum:
+        name={{item}}
+        state=present
+      with_items: "{{pippackages}}"
       become: no
       tags:
         - setup
@@ -163,6 +184,22 @@
       become: no
       tags:
         - setup
+
+#
+# copy supvervisor config and necessary startup scripts
+#
+
+    - name: copy the supervisor config
+      template:
+        src=supervisord.ini
+        dest=/etc/supervisord.d/
+        owner=root
+        group=root
+        mode=0755
+      become: no
+      tags:
+        - setup
+
 #
 # copy entrypoint and setup files
 #
@@ -190,6 +227,29 @@
         - setup
 
 #
+# create self signed ssl certificate
+#
+    - name: create ssl directory
+      file:
+        path=/etc/nginx/ssl
+        state=directory
+      tags:
+        - ssl
+
+    - name: check if certificate already exists
+      stat: 
+        path=/etc/nginx/ssl/nginx.crt
+      register: ssl_cert
+      tags:
+        - ssl
+
+    - name: create ssl certificate
+      command: openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/ssl/nginx.key -out /etc/nginx/ssl/nginx.crt -subj '/C=CH/ST=Zurich/L=Zurich/O=private/OU=dockering/CN=barfoot.local'
+      when: not ssl_cert.stat.exists
+      tags:
+        - ssl
+
+#
 # download the configuration file
 #
 
@@ -205,7 +265,6 @@
       tags:
         - config
 
-
     - name: download a current ubooquity config file (with password)
       get_url:
         url="{{config_url}}"
@@ -220,6 +279,27 @@
       tags:
         - config
 
+    - name: download a current nginx config file
+      get_url:
+        url="{{nginx_url}}"
+        dest="{{nginx_config}}"
+        validate_certs=no
+        force=yes
+      when: nginx_url != "" and config_user == ""
+      tags:
+        - config
+
+    - name: download a current nginx config file (with password)
+      get_url:
+        url="{{nginx_url}}"
+        url_username="{{config_user}}"
+        url_password="{{config_pass}}"
+        dest="{{ubooquity_config}}"
+        validate_certs=no
+        force=yes
+      when: nginx_url != "" and config_user != ""
+      tags:
+        - config
 
 #
 # change the user id of the containers user
@@ -271,7 +351,7 @@
     # set the permissions on the folders.
     # if the folder is shared from the host this
     # step may fail. therefore we ignore the error
-    - name: set the permissions of the backuppc home dir
+    - name: set the permissions of the ubooquity home dir
       command: "chown -R {{volume_uid}}:{{volume_gid}} {{service_user.home}}"
       ignore_errors: yes
       tags:
