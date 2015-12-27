@@ -7,7 +7,7 @@ RUN dnf install -y moreutils
 RUN adduser podcast
 
 # create volume directories
-RUN mkdir -p /volumes/{podcasts, config}
+RUN mkdir -p /volumes/podcasts; mkdir -p /volumes/config
 # create empty podcasts file and netrc file
 RUN echo "machine www.domain.com login username password userstopsecretpass" > /volumes/config/netrc
 RUN echo "http://www.domain.com/rss.xml" > /volumes/config/podcasts
@@ -28,7 +28,10 @@ RUN chmod +x /opt/docker-entrypoint.sh
 USER podcast
 
 # set the default env variable for the git-annex template
-ENV FEEDTEMPLATE '${feedtitle}/${itempubdate}-${itemtitle}${extension}'
+# and download locations for the auth url and podcasts url
+ENV FEEDTEMPLATE='${feedtitle}/${itempubdate}-${itemtitle}${extension}'
+ENV AUTHURL=""
+ENV PODCASTSURL=""
 
 # set the entrypoint
-ENTRYPOINT ["/opt/docker-entrypoint.sh"]z
+ENTRYPOINT ["/opt/docker-entrypoint.sh"]
