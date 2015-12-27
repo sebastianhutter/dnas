@@ -18,7 +18,6 @@ if [ -z "$annex_mode" ]; then
   annex_mode="indirect"
 else
   echo annex mode is direct | ts '%F %T'
-  wget -q $netrc_url -O "$config_dir/netrc"
   annex_mode="direct"
 fi
 
