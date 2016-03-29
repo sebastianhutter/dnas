@@ -38,7 +38,9 @@
       - feedparser
       - pydbus
       - pyopenssl
-      - http://www.golug.it/pub/yenc/yenc-0.4.0.tar.gz
+      - https://bitbucket.org/dual75/yenc/get/0.4.0.tar.gz
+      #- yenc
+      #- http://www.golug.it/pub/yenc/yenc-0.4.0.tar.gz
 
     yumpackages:
       - par2cmdline
@@ -67,8 +69,8 @@
     service_user:
       name: 'sabnzbd'
       home: '/home/sabnzbd'
-      uid: '998'
-      gid: '998'
+      uid: '1001'
+      gid: '1001'
       group: 'sabnzbd'
       system: 'yes'
       shell: '/bin/bash'
@@ -93,6 +95,14 @@
       line: "{{container_user.name}} ALL=(ALL) NOPASSWD:ALL"
 
   tasks:
+#    - name: update base system
+#      yum:
+#        name=*
+#        state=latest
+#      become: no
+#      tags:
+#        - setup
+
     - name: installing pip build requirements
       yum:
         name={{item}}
