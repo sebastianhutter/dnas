@@ -26,6 +26,9 @@ RUN ./configure --user=root --group=root --prefix=/etc/nginx \
 RUN make
 RUN make install
 
+# copy default nginx configuration
+ADD build/nginx.conf /etc/nginx/nginx.conf
+
 # add the docker entrypoint script
 ADD build/docker-entrypoint.sh /
 RUN chmod +x /docker-entrypoint.sh
