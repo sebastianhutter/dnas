@@ -1,85 +1,30 @@
 #!/bin/bash
-set -e
 
-usage()
-{
-cat << EOF
-usage: $0 options
+# the local nginx configuration file to be replaced / parsed
+CONFIG_LOCAL="/ubooquity/preferences.xml"
 
-This is the entry point for the docker container.
-It takes multiple arguments
-
-OPTIONS:
-   -h      Show this message
-   -c      the command to run (by default its set to run the dockerized service)
-   -n      if specified the config file will be updated before the service starts
-   -u      username for the config file download
-   -p      password for the config file download
-   -f      url to the config file
-   -d      url to the config file of httpd
-
-EOF
-}
-
-CMD="ubooquity"
-CONFIG=0
-USERNAME=""
-PASSWORD=""
-URL=""
-
-while getopts "hc:nmqu:p:f:d:i:o:" OPTION
-do
-     case $OPTION in
-         h)
-             usage
-             exit 1
-             ;;
-         c)
-             CMD=$OPTARG
-             ;;
-         n)
-             CONFIG=1
-             ;;
-         u)
-             USERNAME=$OPTARG
-             ;;
-         p)
-             PASSWORD=$OPTARG
-             ;;
-         f)
-             URL1=$OPTARG
-             ;;
-         d)
-             URL2=$OPTARG
-             ;;
-         ?)
-             usage
-             exit
-             ;;
-     esac
-done
-shift $(expr $OPTIND - 1 )
-param="$@"
-
-
-if [ "$CMD" = 'ubooquity' ]; then
-
-  if [ "$CONFIG" -eq "1" ]; then
-    ansible-playbook /opt/ubooquity.yml -c local -t config --extra-vars "config_url=$URL1 nginx_url=$URL2 config_user=$USERNAME config_pass=$PASSWORD"
-  fi
-
-  # create ssl certificate if not existing
-  ansible-playbook /opt/ubooquity.yml -c local -t ssl
-
-  #exec sudo -u ubooquity java -jar /opt/ubooquity/Ubooquity.jar -webadmin -headless -workdir /home/ubooquity
-  exec sudo /usr/bin/supervisord
-fi
-
-# if the first paramter is not plex start
-# whatever parameters where given
-if [ -z "$param" ]; then
-    exec "$CMD"
+# first check if the download url is set. if so try to download the file via curl
+if [ -z "$CONFIG_URL" ]; then 
+  echo "No config url set. Will use local configuration file"
 else
-    exec "$cmd" $param
+  echo "Config url is set. Download the configuration file"
+  # now try to download the configuration file
+  if [ -z "$CONFIG_USERNAME" ] || [ -z "$CONFIG_PASSWORD" ]; then
+    # if no usename and password is specified
+    curl "$CONFIG_URL" -o "$CONFIG_LOCAL"
+    [ $? -ne 0 ] && exit 1
+  else
+    curl --user $CONFIG_USERNAME:$CONFIG_PASSWORD "$CONFIG_URL" -o "$CONFIG_LOCAL"
+    [ $? -ne 0 ] && exit 1
+  fi
 fi
 
+# now parse the nginx configuration file with j2
+echo "Parse the nginx configuration file with j2"
+mv "$CONFIG_LOCAL" "$CONFIG_LOCAL.orig"
+j2 "$CONFIG_LOCAL.orig" > "$CONFIG_LOCAL"
+[ $? -ne 0 ] && exit 1
+
+# run ubooquity
+echo "Run ubooquity"
+java -jar /ubooquity/Ubooquity.jar -webadmin -headless -workdir /ubooquity
