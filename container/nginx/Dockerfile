@@ -43,4 +43,4 @@ RUN rm -rf /tmp/build && \
 # expose http and https ports
 EXPOSE 80 443
 # run the docker entrypoint script
-ENTRYPOINT ['/docker-entrypoint.sh']
+ENTRYPOINT ["/docker-entrypoint.sh"]
