@@ -33,6 +33,9 @@ ADD build/nginx.conf /etc/nginx/nginx.conf
 ADD build/docker-entrypoint.sh /
 RUN chmod +x /docker-entrypoint.sh
 
+# create the default nginx html directory
+RUN mkdir -p /usr/share/nginx/html
+
 # do some cleanup
 # remove the build directory
 # remove unused locales 
