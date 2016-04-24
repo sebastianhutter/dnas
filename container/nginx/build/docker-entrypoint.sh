@@ -38,7 +38,7 @@ fi
 
 # now parse the nginx configuration file with j2
 echo "Parse the nginx configuration file with j2"
-mv "$CONFIG_LOCAL" "$CONFIG_LOCAL.orig"
+mv -f "$CONFIG_LOCAL" "$CONFIG_LOCAL.orig"
 j2 "$CONFIG_LOCAL.orig" > "$CONFIG_LOCAL"
 [ $? -ne 0 ] && exit 1
 
