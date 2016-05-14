@@ -7,7 +7,7 @@ RUN dnf install -y http://download1.rpmfusion.org/free/fedora/rpmfusion-free-rel
 RUN dnf install -y git gcc redhat-rpm-config python-devel libffi-devel openssl-devel curl \
   python-pip python-yenc unrar unzip tar p7zip p7zip-plugins par2cmdline && \
   pip install --upgrade pip && \
-  pip install Cheetah pydbus pyOpenSSL
+  pip install Cheetah pydbus pyOpenSSL j2cli
 
 # switch the workdir
 WORKDIR /
