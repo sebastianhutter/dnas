@@ -5,7 +5,7 @@ SABNZBD_CONFIG_LOCAL="/sabnzbd/sabnzbd.ini"
 NZBTOMEDIA_CONFIG_LOCAL="/nzbToMedia/autoProcessMedia.cfg"
 
 # sabnzbd: check for configuration download
-if [ -z "$SABNZBD_CONFIG_LOCAL" ]; then 
+if [ -z "$SABNZBD_CONFIG_URL" ]; then 
   echo "sabnzbd: No config url set. Will use local configuration file"
 else
   echo "sabnzbd: Config url is set. Download the configuration file"
@@ -21,7 +21,7 @@ else
 fi
 
 # first check if the download url is set. if so try to download the file via curl
-if [ -z "$NZBTOMEDIA_CONFIG_LOCAL" ]; then 
+if [ -z "$NZBTOMEDIA_CONFIG_URL" ]; then 
   echo "nzbtomedia: No config url set. Will use local configuration file"
 else
   echo "nzbtomedia: Config url is set. Download the configuration file"
