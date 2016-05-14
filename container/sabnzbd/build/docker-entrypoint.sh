@@ -48,5 +48,5 @@ j2 "$NZBTOMEDIA_CONFIG_LOCAL.orig" > "$NZBTOMEDIA_CONFIG_LOCAL"
 [ $? -ne 0 ] && exit 1
 
 # run sabnzbd
-echo "Run ubooquity"
-java -jar /ubooquity/Ubooquity.jar -webadmin -headless -workdir /ubooquity
+echo "Run sabnzbd"
+python /sabnzbd/SABnzbd.py --server 0.0.0.0 -f $SABNZBD_CONFIG_LOCAL
