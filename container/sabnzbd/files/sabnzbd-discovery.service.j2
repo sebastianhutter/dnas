@@ -1,7 +1,0 @@
-[Unit]
-Description=Sabnzbd Discovery Service
-BindsTo=sabnzbd.service
-
-[Service]
-EnvironmentFile=/etc/sysconfig/dnas
-ExecStart=/bin/sh -c "while true; do $DNASSCRIPTS/sabnzbd-discovery.sh start; sleep 45; done"
