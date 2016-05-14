@@ -1,17 +1,22 @@
-FROM ansible/centos7-ansible:stable
+FROM fedora:23
 
-# run the ansible playbook to setup the rssdler service
-ADD build /tmp/build
-WORKDIR /tmp/build
-RUN ansible-playbook couchpotato.yml -c local -t setup
+# set workdir
 WORKDIR /
-RUN rm -rf /tmp/build
 
-EXPOSE 5050
+# install couchpotato requirements
+RUN dnf install -y git gcc redhat-rpm-config python-devel libffi-devel \
+  openssl-devel curl python-pip libxml2-devel libxslt-devel && \
+  pip install --upgrade pip && \
+  pip install --upgrade pyOpenSSL j2cli lxml
 
-# become rssdler user
-USER container
-# run the rssdler script
-ENTRYPOINT ["/opt/docker-entrypoint.sh"]
-CMD ["-c couchpotato"]
+# download couchpotato
+RUN git clone https://github.com/CouchPotato/CouchPotatoServer.git
 
+# copy the couchpotato configuration file
+ADD build/settings.conf /CouchPotatoServer/settings.conf
+# add the entry script
+ADD build/docker-entrypoint.sh /
+RUN chmod +x /docker-entrypoint.sh
+
+# run the docker entrypoint script
+ENTRYPOINT ["/docker-entrypoint.sh"]
