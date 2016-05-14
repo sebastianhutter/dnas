@@ -1,7 +1,0 @@
-[Unit]
-Description=Couchpotao Discovery Service
-BindsTo=couchpotato.service
-
-[Service]
-EnvironmentFile=/etc/sysconfig/dnas
-ExecStart=/bin/sh -c "while true; do $DNASSCRIPTS/couchpotato-discovery.sh start; sleep 45; done"
