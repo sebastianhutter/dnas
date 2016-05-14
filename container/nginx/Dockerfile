@@ -15,14 +15,18 @@ RUN pip install --upgrade j2cli
 WORKDIR /tmp/build
 RUN curl -O http://nginx.org/download/nginx-${nginx_version}.tar.gz
 RUN tar -xvzf nginx-${nginx_version}.tar.gz
-WORKDIR /tmp/build/nginx-${nginx_version} 
+WORKDIR /tmp/build/nginx-${nginx_version}
+# simple auth with ldap backend
 RUN git clone https://github.com/kvspb/nginx-auth-ldap.git
+# enable proxying of aws s3 (we need to use the v4 branch to enable aws4-hmac-sha256 enc.)
+RUN git clone -b AuthV4-dev https://github.com/anomalizer/ngx_aws_auth.git
 RUN ./configure --user=root --group=root --prefix=/etc/nginx \
                 --sbin-path=/usr/sbin/nginx --conf-path=/etc/nginx/nginx.conf \
                 --pid-path=/var/run/nginx.pid --lock-path=/var/run/nginx.lock \
                 --error-log-path=/var/log/nginx/error.log --http-log-path=/var/log/nginx/access.log \
                 --with-http_gzip_static_module --with-http_stub_status_module --with-http_ssl_module \
-                --with-pcre --with-file-aio --with-http_realip_module --add-module=nginx-auth-ldap
+                --with-pcre --with-file-aio --with-http_realip_module \
+                --add-module=nginx-auth-ldap
 RUN make
 RUN make install
 
