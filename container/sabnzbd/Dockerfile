@@ -12,7 +12,6 @@ RUN dnf install -y git gcc redhat-rpm-config python-devel libffi-devel openssl-d
   pip install --upgrade pip && \
   pip install --upgrade Cheetah pydbus pyOpenSSL j2cli
 
-
 # download sabnzbd and nzbtomedia
 RUN git clone https://github.com/sabnzbd/sabnzbd.git && \
     git clone https://github.com/clinton-hall/nzbToMedia.git
