@@ -1,6 +1,6 @@
 FROM fedora:23
 
-ENV ubooquity_version 1.9.1
+ENV ubooquity_version 1.10.1
 
 # install java
 RUN dnf install -y java-1.8.0-openjdk-headless unzip python-pip
